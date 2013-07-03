@@ -1,14 +1,12 @@
 from app import db
 from werkzeug.security import generate_password_hash, check_password_hash
 
-ROLE_USER = 0
-ROLE_ADMIN = 1
-
 class User(db.Model):
+    """Keeps track of basic information about a user."""
     id = db.Column(db.Integer, primary_key = True)
-    name = db.Column(db.String(50))
+    name = db.Column(db.String(60))
     email = db.Column(db.String(100))
-    role = db.Column(db.SmallInteger, default = ROLE_USER)
+    dummy = db.Column(db.Boolean)
     pw_hash = db.Column(db.String(160))
 
     # pw hashing and checking
@@ -26,12 +24,39 @@ class User(db.Model):
         return True
 
     def is_anonymous(self):
-        return False
+        return not self.dummy
 
     def get_id(self):
         return unicode(self.id)
 
     # other
-
     def __repr__(self):
         return "<User {0}>".format(self.name)
+
+
+class Flock(db.Model):
+    """Manages facts about groups. Name, etc."""
+    id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(60))
+
+    def __repr__(self):
+        return "<Flock {0}>".format(self.name)
+
+
+class Member(db.Model):
+    """Keeps track of which users are
+    members of which groups, and whether or not members of groups
+    are admins."""
+    id = db.Column(db.Integer, primary_key = True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    group_id = db.Column(db.Integer, db.ForeignKey('flock.id'))
+    admin = db.Column(db.Boolean)
+
+class Trans(db.Model):
+    """A table of all transactions, which are either debts or
+    credits, although this is not explicitly represented, it
+    is implicit in whether the value is positive or negative"""
+    id = db.Column(db.Integer, primary_key = True)
+    from_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    to_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    amount = db.Column(db.Numeric(precision = 2))
