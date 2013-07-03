@@ -1,6 +1,6 @@
 from app import app, login_manager, db
 from app.forms import LoginForm
-from flask import render_template, redirect, flash, url_for
+from flask import render_template, redirect, flash, url_for, request
 from models import User
 from flask.ext.login import login_user, logout_user, current_user, login_required
 
@@ -37,7 +37,8 @@ def login():
             return render_template('login.html',form=form)
         else:
             login_user(user)
-            return redirect(url_for('dashboard'))
+            return redirect(request.args.get('next')) or \
+                   redirect(url_for('dashboard'))
     else:
         return render_template('login.html',form = form)
 
