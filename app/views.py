@@ -30,14 +30,14 @@ def login():
         # try to log the user in
         user = User.query.filter_by(email = form.email.data).first()
         if user == None:
-            return redirect('/login')
+            flash("No such user.")
+            return render_template('login.html',form=form)
         elif not user.check_password(form.password.data):
-            return redirect('/login')
+            flash("Password incorrect.")
+            return render_template('login.html',form=form)
         else:
             login_user(user)
             return redirect(url_for('dashboard'))
-
-
     else:
         return render_template('login.html',form = form)
 
