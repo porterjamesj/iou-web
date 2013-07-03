@@ -34,13 +34,13 @@ class User(db.Model):
         return "<User {0}>".format(self.name)
 
 
-class Flock(db.Model):
+class Group(db.Model):
     """Manages facts about groups. Name, etc."""
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(60))
 
     def __repr__(self):
-        return "<Flock {0}>".format(self.name)
+        return "<Group {0}>".format(self.name)
 
 
 class Member(db.Model):
@@ -49,7 +49,7 @@ class Member(db.Model):
     are admins."""
     id = db.Column(db.Integer, primary_key = True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    group_id = db.Column(db.Integer, db.ForeignKey('flock.id'))
+    group_id = db.Column(db.Integer, db.ForeignKey('group.id'))
     admin = db.Column(db.Boolean)
 
 class Trans(db.Model):

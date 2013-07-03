@@ -1,7 +1,7 @@
 from app import app, login_manager, db
 from app.forms import LoginForm
 from flask import render_template, redirect, flash, url_for, request
-from models import User
+from models import User, Member, Group
 from flask.ext.login import login_user, logout_user, current_user, login_required
 
 # the user loader class used by the login manager
@@ -53,5 +53,12 @@ def logout():
 @app.route('/dash')
 @login_required
 def dashboard():
+    # find all of this user's groups
+    groupnames = []
+    for u,m in db.session.query(User, Member).\
+                          filter(Member.user_id == User.id):
+        groupnames.append(Group.query.get(m.group_id).name)
+
     return render_template('dash.html',user=current_user,
-                           toolbar = True)
+                           toolbar = True,
+                           groups = groupnames)

@@ -1,6 +1,10 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <p> {{ user.name }} </p>
-  <p> {{ user.email }} </p>
+  <h2> Hello, {{ user.name }} </h2>
+
+  <h3> Your groups: </h3>
+  {% for group in groups %}
+    <p> {{group}} </p>
+  {% endfor %}
 {% endblock %}
