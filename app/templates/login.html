@@ -2,38 +2,38 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <div class="container">
-    <h1>Sign In</h1>
-    {# Show errors and messages #}
+  <h1>Sign In</h1>
+  {# Show errors and messages #}
 
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        {% for message in messages %}
-          <div class="alert alert-error">
-            <button type="button" class="close" data-dismiss="alert">&times;</button>
-            {{ message }}
-          </div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
-
-    {% for field in form.errors %}
-      {% for error in form.errors[field] %}
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      {% for message in messages %}
         <div class="alert alert-error">
           <button type="button" class="close" data-dismiss="alert">&times;</button>
-          {{field}}: {{ error }}
+          {{ message }}
         </div>
       {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  {% for field in form.errors %}
+    {% for error in form.errors[field] %}
+      <div class="alert alert-error">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        {{field}}: {{ error }}
+      </div>
     {% endfor %}
-    <form action="" method="post" name="login">
-      {{form.hidden_tag()}} {# CSRF prevention #}
-      <p>
-        Email: {{form.email(size=80)}}
-      </p>
-      <p>
-        Password: {{form.password(size=80)}}
-      </p>
-      <p><input type="submit" value="Sign In"></p>
-    </form>
-  </div>
+  {% endfor %}
+
+  {# the actual login form #}
+  <form action="" method="post" name="login" class="form-horizontal">
+    {{form.hidden_tag()}} {# CSRF prevention #}
+    <p>
+      Email: {{form.email(size=80)}}
+    </p>
+    <p>
+      Password: {{form.password(size=80)}}
+    </p>
+    <p><input type="submit" class="btn" value="Sign In"></p>
+  </form>
 {% endblock %}
