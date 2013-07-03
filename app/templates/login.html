@@ -1,0 +1,25 @@
+{# extend base template #}
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="container">
+    <h1>Sign In</h1>
+    <form action="" method="post" name="login">
+      {{form.hidden_tag()}} {# CSRF prevention #}
+      {# Show some errors #}
+      {% for error in form.errors.email %}
+        <div class="alert alert-error">
+          <button type="button" class="close" data-dismiss="alert">&times;</button>
+          [{{ error }}]
+        </div>
+      {% endfor %}
+      <p>
+        Email: {{form.email(size=80)}}
+      </p>
+      <p>
+        Password: {{form.password(size=80)}}
+      </p>
+      <p><input type="submit" value="Sign In"></p>
+    </form>
+  </div>
+{% endblock %}
