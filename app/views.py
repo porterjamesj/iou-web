@@ -54,10 +54,12 @@ def logout():
 @login_required
 def dashboard():
     # find all of this user's groups
-    groupnames = []
-    for u,m in db.session.query(User, Member).\
-                          filter(Member.user_id == User.id):
-        groupnames.append(Group.query.get(m.group_id).name)
+    groupids = [g.id for g in
+                Member.query.filter(Member.user_id == current_user.id).all()]
+    groupnames = [g.name for g in
+                  Group.query.filter(Group.id.in_(groupids)).all()]
+
+    #
 
     return render_template('dash.html',user=current_user,
                            toolbar = True,
