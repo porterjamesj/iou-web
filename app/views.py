@@ -12,11 +12,11 @@ def load_user(id):
 @app.route('/')
 @app.route('/index')
 def index():
-    print current_user
-    # if current_user:
-    #     redirect(url_for('dashboard'))
-    # else:
-    return render_template('index.html')
+    print current_user.is_authenticated()
+    if current_user.is_authenticated():
+        return redirect(url_for('dashboard'))
+    else:
+        return render_template('index.html')
 
 # logging in and out
 
