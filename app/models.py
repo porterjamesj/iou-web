@@ -59,4 +59,6 @@ class Trans(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     from_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     to_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    group_id = db.Column(db.Integer, db.ForeignKey('group.id'))
     amount = db.Column(db.Numeric(precision = 2))
+    fresh = db.Column(db.Boolean)

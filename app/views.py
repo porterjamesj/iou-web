@@ -12,7 +12,6 @@ def load_user(id):
 @app.route('/')
 @app.route('/index')
 def index():
-    print current_user.is_authenticated()
     if current_user.is_authenticated():
         return redirect(url_for('dashboard'))
     else:
@@ -58,7 +57,7 @@ def logout():
 @login_required
 def dashboard():
     # find all of this user's groups
-    groupids = [g.id for g in
+    groupids = [g.group_id for g in
                 Member.query.filter(Member.user_id == current_user.id).all()]
     groups = {g.name : None  for g in
                   Group.query.filter(Group.id.in_(groupids)).all()}
