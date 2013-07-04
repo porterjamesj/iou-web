@@ -12,6 +12,10 @@ def load_user(id):
 @app.route('/')
 @app.route('/index')
 def index():
+    print current_user
+    # if current_user:
+    #     redirect(url_for('dashboard'))
+    # else:
     return render_template('index.html')
 
 # logging in and out
@@ -56,11 +60,17 @@ def dashboard():
     # find all of this user's groups
     groupids = [g.id for g in
                 Member.query.filter(Member.user_id == current_user.id).all()]
-    groupnames = [g.name for g in
-                  Group.query.filter(Group.id.in_(groupids)).all()]
+    groups = {g.name : None  for g in
+                  Group.query.filter(Group.id.in_(groupids)).all()}
 
-    #
+    # find the members of those groups
+    for groupid,groupname in zip(groupids,groups.keys()):
+        # get the ids of all users in this group
+        userids = [m.user_id for m in
+                   Member.query.filter(Member.group_id == groupid).all()]
+        users = User.query.filter(User.id.in_(userids)).all()
+        groups[groupname] = [u.name for u in users]
 
     return render_template('dash.html',user=current_user,
                            toolbar = True,
-                           groups = groupnames)
+                           groups = groups)

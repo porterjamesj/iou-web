@@ -4,7 +4,10 @@
   <h2> Hello, {{ user.name }} </h2>
 
   <h3> Your groups: </h3>
-  {% for group in groups %}
-    <p> {{group}} </p>
+  {% for groupname in groups %}
+    <h4> {{groupname}} </h4>
+    {% for member in groups[groupname] %}
+      <p> {{ member }} </p>
+    {% endfor %}
   {% endfor %}
 {% endblock %}
