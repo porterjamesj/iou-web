@@ -56,19 +56,9 @@ def logout():
 @app.route('/dash')
 @login_required
 def dashboard():
-    # find all of this user's groups
-    groupids = [g.group_id for g in
-                Member.query.filter(Member.user_id == current_user.id).all()]
-    groups = {g.name : None  for g in
-                  Group.query.filter(Group.id.in_(groupids)).all()}
-
-    # find the members of those groups
-    for groupid,groupname in zip(groupids,groups.keys()):
-        # get the ids of all users in this group
-        userids = [m.user_id for m in
-                   Member.query.filter(Member.group_id == groupid).all()]
-        users = User.query.filter(User.id.in_(userids)).all()
-        groups[groupname] = [u.name for u in users]
+    groups = {}
+    for group in current_user.groups:
+        groups[group.name] = [m.name for m in group.members]
 
     return render_template('dash.html',user=current_user,
                            toolbar = True,
