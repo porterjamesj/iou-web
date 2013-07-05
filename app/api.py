@@ -5,7 +5,7 @@ from flask.ext.login import login_required
 
 # routes for manipulating the database
 
-@app.route('/add',methods=['GET','POST'])
+@app.route('/add',methods=['POST'])
 @login_required
 def addtrans():
     # extract info from requests
@@ -13,8 +13,6 @@ def addtrans():
     from_id = request.args.get('from_id')
     to_id = request.args.get('to_id')
     amount = request.args.get('amount')
-
-    print group_id, from_id, to_id, amount
 
     fromuser = User.query.get(from_id)
     touser = User.query.get(to_id)
