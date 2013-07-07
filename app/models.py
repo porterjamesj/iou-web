@@ -65,9 +65,7 @@ class Member(db.Model):
 
 
 class Trans(db.Model):
-    """A table of all transactions, which are either debts or
-    credits, although this is not explicitly represented, it
-    is implicit in whether the value is positive or negative"""
+    """A table of all transactions."""
     id = db.Column(db.Integer, primary_key = True)
     from_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     to_id = db.Column(db.Integer, db.ForeignKey('user.id'))
