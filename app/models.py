@@ -2,6 +2,11 @@ from app import db
 from sqlalchemy.ext.associationproxy import association_proxy
 from werkzeug.security import generate_password_hash, check_password_hash
 
+# enum for transactions
+DEBT = 0
+PAYMENT = 1
+CLEAR_ALL = 2
+
 class User(db.Model):
     """Keeps track of basic information about a user."""
     id = db.Column(db.Integer, primary_key = True)
@@ -68,4 +73,8 @@ class Trans(db.Model):
     to_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     group_id = db.Column(db.Integer, db.ForeignKey('group.id'))
     amount = db.Column(db.Numeric(precision = 2))
-    fresh = db.Column(db.Boolean)
+    # the kind column indicates whether this was a debt or a
+    # payment. mathematically they are identical, but from a user's
+    # perspective they are different, so we keep track of which is
+    # which for presentation's sake
+    kind = db.Column(db.SmallInteger)
