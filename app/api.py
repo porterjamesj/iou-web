@@ -2,6 +2,7 @@ from app import app, login_manager, db
 from models import User, Member, Group, Trans
 from flask import jsonify, request
 from flask.ext.login import login_required
+import services as srv
 
 # routes for manipulating the database
 
@@ -22,28 +23,16 @@ def addtrans():
         return jsonify({"errmsg":"No such user(s).",
                         "errcode":0})
 
+    group = Group.query.get(group_id)
     # verify that the group exists
-    if Group.query.get(group_id) == None:
+    if group == None:
         return jsonify({"errmsg":"No such group.",
                         "errcode":1})
 
     # verify that both users are members of the group
-    try:
-        Member.query.filter(Member.group_id == group_id)\
-          .filter(Member.user_id == from_id).one()
-        Member.query.filter(Member.group_id == group_id)\
-          .filter(Member.user_id == to_id).one()
-
-    except:
+    if fromuser in group.members and touser in group.members:
+        srv.add_transaction(group_id, from_id, to_id, amount)
+        return jsonify(result = "success")
+    else:
         return jsonify({"errmsg":"Users are not in the requested group.",
                         "errcode": 2})
-
-    # we are good to add the transaction
-    newtrans = Trans(group_id = group_id,
-                     from_id = from_id,
-                     to_id = to_id,
-                     amount = amount,
-                     fresh = True)
-    db.session.add(newtrans)
-    db.session.commit()
-    return jsonify(result = "success")
