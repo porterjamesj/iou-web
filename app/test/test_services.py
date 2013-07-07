@@ -40,3 +40,31 @@ class TestBuildGraph():
         self.transactions.append(
             Trans(group_id=2,to_id=2,from_id=3,amount=100,kind=DEBT))
         srv.build_graph(self.transactions)
+
+class TestDisplayGraph():
+    """Test converting a graph in terms of user ids to a graph in terms of
+    user names, suitable for displaying on the page."""
+
+    def setUp(self):
+        self.graph = {1: {2: 20, 3:5},
+                      2: {1:10},
+                      3: {}}
+        self.users = [
+            User(id=1,name="alice"),
+            User(id=2,name="bob"),
+            User(id=3,name="charlie")
+        ]
+
+    def test_basic(self):
+        """display_graph should work as expected on simple inputs."""
+        assert srv.display_graph(self.graph,
+                                 self.users) == {"alice": {"bob": 20, "charlie":5},
+                                                 "bob": {"alice":10},
+                                                 "charlie": {}}
+
+    @raises(KeyError)
+    def test_error(self):
+        """display_graph should raise an error if the users list does not contain
+        all the users in the graph."""
+        del self.graph[0]
+        srv.display_graph(self.graph,self.users)

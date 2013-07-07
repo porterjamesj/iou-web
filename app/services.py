@@ -36,4 +36,13 @@ def build_graph(transactions):
 def display_graph(graph,users):
     """Converts a graph in terms of user ids to one in terms of usernames,
     suitable for display. Requires a list of users to use for the mapping."""
-    pass
+    dispgraph = {}
+    namemap = {u.id: u.name for u in users}
+    for u in users:
+        dispgraph[u.name] = {}
+        for subid in graph[u.id]:
+            try:
+                dispgraph[u.name][namemap[subid]] = graph[u.id][subid]
+            except:
+                raise KeyError("User list has no mapping for this user.")
+    return dispgraph
