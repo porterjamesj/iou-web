@@ -15,8 +15,11 @@ def add_transaction(group_id, from_id, to_id, amount, debt):
 
 def build_graph(transactions):
     """Given a list of transactions, return the corresponding debtgraph."""
-    # check that the transactions are all for the same group
-    if not len({trans.group_id for trans in transactions}) == 1:
+    # first check if we were given no transactions, if so return empty dict
+    if len(transactions) == 0:
+        return None
+    # then check that the transactions are all for the same group
+    elif len({trans.group_id for trans in transactions}) > 1:
             raise RuntimeError("Some transactions not in the same group.")
     # the dictionary we will build up and return
     emptygraph = {id:defaultdict(int)

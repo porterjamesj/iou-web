@@ -34,6 +34,10 @@ class TestBuildGraph():
                             2: {3: 100.0},
                             1: {}}
 
+    def test_no_transactions(self):
+        """Should return None when there are no transactions."""
+        dg = srv.build_graph([]) == None
+
     @raises(RuntimeError)
     def test_error(self):
         """Should error if all transactions are not in the same group."""
