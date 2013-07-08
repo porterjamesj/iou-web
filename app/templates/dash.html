@@ -5,9 +5,19 @@
 
   <h3> Your groups: </h3>
   {% for groupname in groups %}
+
     <h4> {{groupname}} </h4>
     {% for member in groups[groupname] %}
       <p> {{ member }} </p>
+      <ul>
+        {% for debtor in groups[groupname][member] %}
+          <li>
+             ^ {{ debtor }}: ${{ groups[groupname][member][debtor] }}
+          </li>
+        {% endfor %}
+      </ul>
     {% endfor %}
+
   {% endfor %}
+
 {% endblock %}

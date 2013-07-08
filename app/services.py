@@ -13,30 +13,31 @@ def add_transaction(group_id, from_id, to_id, amount, debt):
     db.session.add(newtrans)
     db.session.commit()
 
-def build_graph(transactions):
-    """Given a list of transactions, return the corresponding debtgraph."""
-    # first check if we were given no transactions, if so return empty dict
-    if len(transactions) == 0:
-        return None
-    # then check that the transactions are all for the same group
-    elif len({trans.group_id for trans in transactions}) > 1:
-            raise RuntimeError("Some transactions not in the same group.")
+def build_graph(users,transactions):
+    """Given lists of users and transactions, return the corresponding
+    debtgraph."""
+    # check that the transactions are all for the one group
+    if len({trans.group_id for trans in transactions}) > 1:
+            raise RuntimeError("Some transactions not in requested group.")
+    # should maybe add a sanity check that all users in the
+    # transactions are in the user list; this could get expensive for
+    # many transactions, it may be better to let the caller handle it
+
     # the dictionary we will build up and return
-    emptygraph = {id:defaultdict(int)
-                  for id in {trans.to_id
-                             for trans in transactions if trans.kind != CLEAR_ALL}}
+    emptygraph = {u.id: defaultdict(int) for u in users}
+    print emptygraph
     graph = deepcopy(emptygraph)
     for trans in transactions:
         if trans.kind == CLEAR_ALL:
             graph = deepcopy(emptygraph)
         else:
-            graph[trans.to_id][trans.from_id] += trans.amount
+            graph[trans.to_id][trans.from_id] += float(trans.amount) # from Decimal
     # simplify graph
     dg = DebtGraph(graph)
     dg.collapse()
     return dg
 
-def display_graph(graph,users):
+def display_graph(users,graph):
     """Converts a graph in terms of user ids to one in terms of usernames,
     suitable for display. Requires a list of users to use for the mapping."""
     dispgraph = {}
