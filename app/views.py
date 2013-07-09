@@ -61,8 +61,9 @@ def dashboard():
         # get all transactions for this group
         transactions = Trans.query.filter(
             Trans.group_id == group.id).all()
-        dg = srv.build_graph(group.members,transactions)
-        graphs[group.name] = srv.display_graph(group.members,dg.graph)
+        print transactions
+        graph = srv.build_graph(group.members,transactions)
+        graphs[group.name] = srv.display_graph(group.members,graph)
 
     return render_template('dash.html',user=current_user,
                            toolbar = True,
