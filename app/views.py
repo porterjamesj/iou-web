@@ -59,8 +59,7 @@ def dashboard():
     graphs = {}
     for group in current_user.groups:
         # get all transactions for this group
-        transactions = Trans.query.filter(
-            Trans.group_id == group.id).all()
+        transactions = group.transactions
         print transactions
         graph = srv.build_graph(group.members,transactions)
         graphs[group.name] = srv.display_graph(group.members,graph)

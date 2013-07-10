@@ -7,6 +7,19 @@ DEBT = 0
 PAYMENT = 1
 CLEAR_ALL = 2
 
+class Trans(db.Model):
+    """A table of all transactions."""
+    id = db.Column(db.Integer, primary_key = True)
+    from_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    to_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    group_id = db.Column(db.Integer, db.ForeignKey('group.id'))
+    amount = db.Column(db.Numeric(precision = 2))
+    # the kind column indicates whether this was a debt or a
+    # payment. mathematically they are identical, but from a user's
+    # perspective they are different, so we keep track of which is
+    # which for presentation's sake
+    kind = db.Column(db.SmallInteger)
+
 class User(db.Model):
     """Keeps track of basic information about a user."""
     id = db.Column(db.Integer, primary_key = True)
@@ -47,6 +60,7 @@ class Group(db.Model):
     name = db.Column(db.String(60))
 
     members = association_proxy("member","user")
+    transactions = db.relation(Trans)
 
     def __repr__(self):
         return "<Group {0}>".format(self.name)
@@ -62,17 +76,3 @@ class Member(db.Model):
 
     user = db.relation(User, backref = "member")
     group = db.relationship(Group, backref = "member")
-
-
-class Trans(db.Model):
-    """A table of all transactions."""
-    id = db.Column(db.Integer, primary_key = True)
-    from_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    to_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    group_id = db.Column(db.Integer, db.ForeignKey('group.id'))
-    amount = db.Column(db.Numeric(precision = 2))
-    # the kind column indicates whether this was a debt or a
-    # payment. mathematically they are identical, but from a user's
-    # perspective they are different, so we keep track of which is
-    # which for presentation's sake
-    kind = db.Column(db.SmallInteger)

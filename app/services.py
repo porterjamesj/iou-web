@@ -146,8 +146,6 @@ def simplify(graph):
         finalgraph[node[0]] = {}
     return finalgraph
 
-
-
 def display_graph(users,graph):
     """Converts a graph in terms of user ids to one in terms of usernames,
     suitable for display. Requires a list of users to use for the mapping."""

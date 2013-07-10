@@ -5,7 +5,6 @@ from collections import defaultdict
 
 class TestBuildGraph():
     """Test building a graph from a list of transactions."""
-
     def setUp(self):
         self.transactions = [
             Trans(group_id=1,to_id=1,from_id=3,amount=2,kind=DEBT),
@@ -128,14 +127,11 @@ class TestHardGraph():
         """Harder flow sets should be correctly converted into graphs."""
         assert srv.flows2graph(self.flows) == self.simplegraph
 
-    def test_simplify_no_subgraphs(self):
+    def test_simplify_with_subgraphs(self):
         """Harder graphs with subgraphs should simplify correctly."""
         assert srv.simplify(self.graph) == self.simplegraph
 
     def test_simplify_bug(self):
-        print  srv.simplify({1: {3: 5.0},
-                             2: {1: 10.0, 3: 5.0},
-                             3: {2: 15.0}})
         assert srv.simplify({1: {3: 5.0},
                              2: {1: 10.0, 3: 5.0},
                              3: {2: 15.0}}) ==  {3: {1: 5.0},
