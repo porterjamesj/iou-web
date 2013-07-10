@@ -4,20 +4,34 @@
   <h2> Hello, {{ user.name }} </h2>
 
   <h3> Your groups: </h3>
-  {% for groupname in groups %}
 
-    <h4> {{groupname}} </h4>
-    {% for member in groups[groupname] %}
-      <p> {{ member }} </p>
-      <ul>
-        {% for debtor in groups[groupname][member] %}
-          <li>
-             ^ {{ debtor }}: ${{ groups[groupname][member][debtor] }}
-          </li>
-        {% endfor %}
-      </ul>
-    {% endfor %}
 
-  {% endfor %}
+  <div class="tabbable tabs-left">
+
+    <ul class="nav nav-tabs">
+      {% for groupname in groups %}
+        <li>
+          <a href="#{{ groupname|toalnum|lower }}" data-toggle="tab">{{groupname}}</a>
+        </li>
+      {% endfor %}
+    </ul>
+
+    <div class="tab-content">
+      {% for groupname in groups %}
+        <div class="tab-pane" id="{{ groupname|toalnum|lower }}">
+          {% for member in groups[groupname] %}
+            <p> {{ member }} </p>
+            <ul>
+              {% for debtor in groups[groupname][member] %}
+                <li>
+                  ^ {{ debtor }}: ${{ groups[groupname][member][debtor] }}
+                </li>
+              {% endfor %}
+            </ul>
+          {% endfor %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
 
 {% endblock %}
