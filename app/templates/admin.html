@@ -1,0 +1,68 @@
+{# View for administrating groups #}
+
+{% extends "base.html" %}
+
+{% block content %}
+  <h2> Administrate </h2>
+
+  <a href="/dash">switch to dashboard view</a>
+
+  <h3> Groups in which you are an administrator: </h3>
+
+  <div class="tabbable tabs-left">
+
+    <ul class="nav nav-tabs">
+      {% for groupname in groups %}
+        <li>
+          <a href="#{{ groupname|toalnum|lower }}" data-toggle="tab">{{groupname}}</a>
+        </li>
+      {% endfor %}
+    </ul>
+
+    <div class="tab-content">
+      {# backend only passes groups in which admin=True #}
+
+      {% for groupname in groups %}
+        <div class="tab-pane" id="{{ groupname|toalnum|lower }}">
+          {# Adding debts #}
+          <h4> Add debts: </h4>
+          <p>From:</p>
+          <div data-toggle="buttons-checkbox">
+            {% for member in groups[groupname] %}
+              <button class="btn btn-small">{{ member.name }}</button>
+            {% endfor %}
+          </div>
+          <p>To:</p>
+          <div data-toggle="buttons-checkbox">
+            {% for member in groups[groupname] %}
+              <button class="btn btn-small">{{ member.name }}</button>
+            {% endfor %}
+          </div>
+          <p>Amount:</p>
+          <input type="text" pattern="\d+(\.\d{1,2})?" required/>
+          <button class="btn btn-large btn-primary">Submit</button>
+          {# Adding paybacks #}
+          <h4> Add paybacks: </h4>
+          From:
+          <div data-toggle="buttons-radio">
+            {% for member in groups[groupname] %}
+              <button class="btn btn-small">{{ member.name }}</button>
+            {% endfor %}
+          </div>
+          To:
+          <div data-toggle="buttons-radio">
+            {% for member in groups[groupname] %}
+              <button class="btn btn-small">{{ member.name }}</button>
+            {% endfor %}
+          </div>
+          <p>Amount:</p>
+          <input type="text" pattern="\d+(\.\d{1,2})?" required/>
+          <button class="btn btn-large btn-primary">Submit</button>
+
+          <h4> Add administrators: </h4>
+
+        </div>
+        {% endfor %}
+    </div>
+  </div>
+{% endblock %}

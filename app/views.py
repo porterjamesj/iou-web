@@ -67,3 +67,18 @@ def dashboard():
     return render_template('dash.html',user=current_user,
                            toolbar = True,
                            groups = graphs)
+
+# admin view
+@app.route('/admin')
+@login_required
+def admin():
+    # get all groups where this user is an admin
+    # may be a better way to do this
+    groups = {}
+    for member in current_user.member:
+        if member.admin == True:
+            this_group = Group.query.get(member.group_id)
+            groups[this_group.name] = this_group.members
+    return render_template('admin.html', user=current_user,
+                           toolbar= True,
+                           groups = groups)
