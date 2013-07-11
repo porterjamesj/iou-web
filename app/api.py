@@ -1,8 +1,9 @@
-from app import app, login_manager, db
-from models import User, Member, Group, Trans
+from __future__ import division
+from app import app
+from app.models import User, Member, Group, Trans, DEBT, PAYMENT
 from flask import jsonify, request
 from flask.ext.login import login_required
-import services as srv
+import app.services as srv
 
 # routes for manipulating the database
 
@@ -10,16 +11,18 @@ import services as srv
 @login_required
 def addtrans():
     # extract info from requests
-    group_id = request.args.get('group_id')
-    from_id = request.args.get('from_id')
-    to_id = request.args.get('to_id')
-    amount = request.args.get('amount')
+    args = request.get_json()
+    group_id = args['group_id']
+    from_ids = args['from']
+    to_id = args['to_id']
+    amount = args['amount']
+    kind = args['kind']
 
-    fromuser = User.query.get(from_id)
+    fromusers = [User.query.get(from_id) for from_id in from_ids]
     touser = User.query.get(to_id)
 
-    # verify that both users exist
-    if fromuser == None or touser == None:
+    # verify that all users exist
+    if touser == None or None in fromusers:
         return jsonify({"errmsg":"No such user(s).",
                         "errcode":0})
 
@@ -29,9 +32,19 @@ def addtrans():
         return jsonify({"errmsg":"No such group.",
                         "errcode":1})
 
+    #determine kind
+    if kind == "debt":
+        kindn = DEBT
+    if kind == "payment":
+        kindn = PAYMENT
+
     # verify that both users are members of the group
-    if fromuser in group.members and touser in group.members:
-        srv.add_transaction(group_id, from_id, to_id, amount)
+    if touser in group.members and all([fromuser in group.members
+                                      for fromuser in fromusers]):
+        # if so, add the requested transactions
+        for from_id in from_ids:
+            srv.add_transaction(group_id, from_id, to_id,
+                                amount/len(from_ids), kindn)
         return jsonify(result = "success")
     else:
         return jsonify({"errmsg":"Users are not in the requested group.",
