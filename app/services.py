@@ -5,13 +5,13 @@ from copy import deepcopy
 from app import db
 from itertools import combinations
 
-def add_transaction(group_id, from_id, to_id, amount, debt):
+def add_transaction(group_id, from_id, to_id, amount, kind):
     """Add the specified transaction to the database."""
     newtrans = Trans(group_id = group_id,
                      from_id = from_id,
                      to_id = to_id,
                      amount = amount,
-                     kind = debt)
+                     kind = kind)
     db.session.add(newtrans)
     db.session.commit()
 
