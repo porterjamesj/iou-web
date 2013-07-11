@@ -78,7 +78,7 @@ def admin():
     for member in current_user.member:
         if member.admin == True:
             this_group = Group.query.get(member.group_id)
-            groups[this_group.name] = this_group.members
+            groups[this_group] = this_group.members
     return render_template('admin.html', user=current_user,
                            toolbar= True,
-                           groups = groups)
+                           groups= groups)

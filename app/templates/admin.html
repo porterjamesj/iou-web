@@ -12,9 +12,9 @@
   <div class="tabbable tabs-left">
 
     <ul class="nav nav-tabs">
-      {% for groupname in groups %}
+      {% for group in groups %}
         <li>
-          <a href="#{{ groupname|toalnum|lower }}" data-toggle="tab">{{groupname}}</a>
+          <a href="#{{ group.id }}" data-toggle="tab">{{group.name}}</a>
         </li>
       {% endfor %}
     </ul>
@@ -22,47 +22,64 @@
     <div class="tab-content">
       {# backend only passes groups in which admin=True #}
 
-      {% for groupname in groups %}
-        <div class="tab-pane" id="{{ groupname|toalnum|lower }}">
+      {% for group in groups %}
+        <div class="tab-pane" class="tab" group={{ group.id }} id={{ group.id }}>
+
           {# Adding debts #}
           <h4> Add debts: </h4>
           <p>From:</p>
           <div data-toggle="buttons-checkbox">
-            {% for member in groups[groupname] %}
-              <button class="btn btn-small">{{ member.name }}</button>
+            {% for member in group.members %}
+              <button class="btn btn-small debt from" group={{ group.id }} uid={{ member.id }}>
+                {{ member.name }}
+              </button>
             {% endfor %}
           </div>
           <p>To:</p>
           <div data-toggle="buttons-checkbox">
-            {% for member in groups[groupname] %}
-              <button class="btn btn-small">{{ member.name }}</button>
+            {% for member in group.members %}
+              <button class="btn btn-small debt to" group={{ group.id }} uid={{ member.id }}>
+                {{ member.name }}
+              </button>
             {% endfor %}
           </div>
           <p>Amount:</p>
-          <input type="text" pattern="\d+(\.\d{1,2})?" required/>
-          <button class="btn btn-large btn-primary">Submit</button>
+          <input class="debt" type="text" pattern="\d+(\.\d{1,2})?" required/>
+          <button class="btn btn-primary" group="{{group.id}}" id="debtsubmit">Submit</button>
+
           {# Adding paybacks #}
-          <h4> Add paybacks: </h4>
+          <h4> Add payments: </h4>
           From:
           <div data-toggle="buttons-radio">
-            {% for member in groups[groupname] %}
-              <button class="btn btn-small">{{ member.name }}</button>
+            {% for member in group.members %}
+              <button class="btn btn-small payment from" group={{ group.id }} uid={{ member.id }}>
+                {{ member.name }}
+              </button>
             {% endfor %}
           </div>
           To:
           <div data-toggle="buttons-radio">
-            {% for member in groups[groupname] %}
-              <button class="btn btn-small">{{ member.name }}</button>
+            {% for member in group.members %}
+              <button class="btn btn-small payment to" group={{ group.id }} uid={{ member.id }}>
+                {{ member.name }}
+              </button>
             {% endfor %}
           </div>
           <p>Amount:</p>
-          <input type="text" pattern="\d+(\.\d{1,2})?" required/>
-          <button class="btn btn-large btn-primary">Submit</button>
+          <input class="payment" type="text" pattern="\d+(\.\d{1,2})?" required/>
+          <button class="btn btn-primary" id={{ group.id }}>Submit</button>
 
+          {# Add admins #}
           <h4> Add administrators: </h4>
 
         </div>
         {% endfor %}
     </div>
   </div>
+{% endblock %}
+
+
+{% block scripts %}
+  {{ super() }}
+  <script src="{{ url_for('static',filename='js/admin.js') }}"></script>
 {% endblock %}
