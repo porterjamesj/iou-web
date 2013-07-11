@@ -1,35 +1,71 @@
 /* globals $SCRIPT_ROOT, $ */
 
 ;(function(exports) {
-  exports.addTrans = function(group_id,amount,from,to_id,kind) {
+
+  var addTrans = function(group_id,amount,from,to_id,kind) {
     $.ajax({
       method: "POST",
       contentType: "application/json",
       url: $SCRIPT_ROOT + "/add",
       data: JSON.stringify({"group_id":group_id,
-                            "from":from,
+                            "from":from, //an array
                             "to_id":to_id,
                             "amount": amount,
                             "kind":kind})
     });
   };
 
-  exports.submitdebt = function() {
-    group_id = this.getAttribute("group");
-    // assuming this is called from the right context
-    debtors = $("button.debt.from.active[group=" + group_id + "]")
+  var getGroup = function($button) {
+    /* Figure out which group a button belongs to. */
+    var groupid = $button.closest("[group]").attr("group");
+    return parseInt(groupid,10);
+  };
+
+  var getTransType =  function($button) {
+    /* Figure out whether a button is for a debt or a payment */
+     return $button.closest("[transtype]").attr("transtype");
+  };
+
+  var getFrom = function($button) {
+    /* Get the user ids of the "froms" for a submission. */
+    var userids = $button.closest("[transtype]")
+      .find("[direction=from]")
+      .find("button.active")
       .map(function () { return this.getAttribute("uid"); })
       .get();
-    amount = parseFloat($("input.debt").val());
-    creditor = $("button.debt.to.active[group=" + group_id + "]").attr("uid");
-    exports.addTrans(group_id,amount,debtors,creditor,"debt");
+
+    return _.map(userids,function (uid) { return parseInt(uid,10); });
+  };
+
+  var getTo = function($button) {
+    /* Get the user id of the "to" user for a submission. */
+    var to_id = $button
+      .closest("[transtype]")
+      .find("[direction=to]")
+      .find("button.active")
+      .attr("uid");
+    return parseInt(to_id,10);
+  };
+
+  var getAmount = function($button) {
+    var amount = $button.closest("[transtype]")
+      .find("input[name=amount]")
+      .val();
+    return parseInt(amount,10);
+  };
+
+  exports.submit = function(button) {
+    $button = $(button);
+    group = getGroup($button);
+    debtors = getFrom($button);
+    creditor = getTo($button);
+    amount = getAmount($button);
+    transtype = getTransType($button);
+    addTrans(group,amount,debtors,creditor,transtype);
   };
 
 })(this);
 
 $(function () {
-
-  $("#debtsubmit").click(submitdebt);
-
-  // $("#paysubmit").click(su);
+  $("button[role=submit]").click(function() { submit(this); });
 });
