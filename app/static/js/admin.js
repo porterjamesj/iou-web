@@ -54,18 +54,41 @@
     return parseInt(amount,10);
   };
 
-  exports.submit = function(button) {
+  var submit = function(button) {
     $button = $(button);
     group = getGroup($button);
     debtors = getFrom($button);
     creditor = getTo($button);
     amount = getAmount($button);
     transtype = getTransType($button);
-    addTrans(group,amount,debtors,creditor,transtype);
+    if (transtype === "debt") { // This is a debt
+      addTrans(group,amount,debtors,creditor,transtype);
+    } else { // This is a payment, have to reverse the logic
+      addTrans(group,amount,[creditor],debtors[0],transtype);
+    }
+  };
+
+  var clearGroup = function (group) {
+    $.ajax({
+      method: "POST",
+      contentType: "application/json",
+      url: $SCRIPT_ROOT + "/clearall/" + group,
+    });
+  };
+
+  var clearAll = function(button) {
+    $button = $(button);
+    group = getGroup($button);
+    clearGroup(group);
+  };
+
+  exports.addEventListeners = function() {
+    $("button[role=submit]").click(function() { submit(this); });
+    $("button[role=clearall]").click(function() { clearAll(this); });
   };
 
 })(this);
 
 $(function () {
-  $("button[role=submit]").click(function() { submit(this); });
+  addEventListeners();
 });

@@ -1,8 +1,8 @@
 from __future__ import division
 from app import app
-from app.models import User, Member, Group, Trans, DEBT, PAYMENT
+from app.models import User, Member, Group, Trans, DEBT, PAYMENT, CLEAR_ALL
 from flask import jsonify, request
-from flask.ext.login import login_required
+from flask.ext.login import login_required,current_user
 import app.services as srv
 
 # routes for manipulating the database
@@ -23,14 +23,14 @@ def addtrans():
 
     # verify that all users exist
     if touser == None or None in fromusers:
-        return jsonify({"errmsg":"No such user(s).",
-                        "errcode":0})
+        return jsonify({"message":"No such user(s).",
+                        "result":1})
 
     group = Group.query.get(group_id)
     # verify that the group exists
     if group == None:
-        return jsonify({"errmsg":"No such group.",
-                        "errcode":1})
+        return jsonify({"message":"No such group.",
+                        "result":2})
 
     #determine kind
     if kind == "debt":
@@ -45,7 +45,26 @@ def addtrans():
         for from_id in from_ids:
             srv.add_transaction(group_id, from_id, to_id,
                                 amount/len(from_ids), kindn)
-        return jsonify(result = "success")
+        return jsonify({"result":0,"message":"success"})
     else:
-        return jsonify({"errmsg":"Users are not in the requested group.",
-                        "errcode": 2})
+        return jsonify({"message":"Users are not in the requested group.",
+                        "result": 3})
+
+@app.route('/clearall/<int:group_id>',methods=['POST'])
+@login_required
+def clearall(group_id):
+    # verify that this group_id exists
+    group = Group.query.get(group_id)
+    if group == None:
+        return jsonify({"message":"No such group.",
+                        "result":2})
+
+    # verify that the current user is an admin for this group_id
+    if current_user.id not in [user.id for user in group.members]:
+        return jsonify({"message":"Not authorized",
+                        "result":4})
+
+    #if we are here, add the transaction
+    srv.add_transaction(int(group_id),0,0,0,CLEAR_ALL)
+    return jsonify({"message":"success",
+                    "result":0})
