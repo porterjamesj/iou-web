@@ -21,6 +21,9 @@ class Trans(db.Model):
     # which for presentation's sake
     kind = db.Column(db.SmallInteger)
 
+    def __repr__(self):
+        return "<Trans {0}>".format(self.id)
+
 class User(db.Model):
     """Keeps track of basic information about a user."""
     id = db.Column(db.Integer, primary_key = True)
@@ -77,3 +80,6 @@ class Member(db.Model):
 
     user = db.relation(User, backref = "member")
     group = db.relationship(Group, backref = "member")
+
+    def __repr__(self):
+        return "<Member {0}>".format(self.id)
