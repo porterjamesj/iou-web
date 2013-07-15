@@ -1,0 +1,15 @@
+{% macro toolbar(active) -%}
+  <div class="navbar">
+    <div class="navbar-inner">
+      <ul class = "nav">
+        <li><a class ="brand" href='/'> iou </a></li>
+        <li class="divider-vertical"></li>
+        <li {% if active == "dash" %} class="active" {% endif %} ><a href="/dash"> Dash </a> </li>
+        <li {% if active == "admin" %} class="active" {% endif %} ><a href="/admin"> Admin </a> </li>
+      </ul>
+      <ul class = "nav pull-right">
+        <li><a href="/logout"> Logout </a></li>
+      </ul>
+    </div>
+  </div>
+{%- endmacro %}

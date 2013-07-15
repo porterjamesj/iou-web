@@ -65,7 +65,6 @@ def dashboard():
         graphs[group.name] = srv.display_graph(group.members,graph)
 
     return render_template('dash.html',user=current_user,
-                           toolbar = True,
                            groups = graphs)
 
 # admin view
@@ -80,5 +79,4 @@ def admin():
             this_group = Group.query.get(member.group_id)
             groups[this_group] = this_group.members
     return render_template('admin.html', user=current_user,
-                           toolbar= True,
                            groups= groups)
