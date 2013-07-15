@@ -61,7 +61,7 @@ class Group(db.Model):
     name = db.Column(db.String(60))
 
     members = association_proxy("member","user")
-    transactions = db.relation(Trans)
+    transactions = db.relation(Trans,order_by = Trans.time)
 
     def __repr__(self):
         return "<Group {0}>".format(self.name)

@@ -4,6 +4,7 @@ from collections import defaultdict
 from copy import deepcopy
 from app import db
 from itertools import combinations
+from time import time
 
 def add_transaction(group_id, from_id, to_id, amount, kind):
     """Add the specified transaction to the database."""
@@ -11,6 +12,7 @@ def add_transaction(group_id, from_id, to_id, amount, kind):
                      from_id = from_id,
                      to_id = to_id,
                      amount = amount,
+                     time = time(),
                      kind = kind)
     db.session.add(newtrans)
     db.session.commit()
@@ -20,7 +22,7 @@ def add_transaction(group_id, from_id, to_id, amount, kind):
 
 def build_graph(users,transactions):
     """Given lists of users and transactions, return the corresponding
-    graph."""
+    graph. Transactions must be ordered by time for this to work correctly."""
     # check that the transactions are all for the one group
     if len({trans.group_id for trans in transactions}) > 1:
         raise RuntimeError("Some transactions not in requested group.")
