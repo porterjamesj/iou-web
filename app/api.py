@@ -4,7 +4,7 @@ from app.models import User, Member, Group, Trans, DEBT, PAYMENT, CLEAR_ALL
 from flask import jsonify, request
 from flask.ext.login import login_required,current_user
 import app.services as srv
-
+from app import db #probably should have enough services so that this is unnecessary
 # routes for manipulating the database
 
 @app.route('/add',methods=['POST'])
@@ -14,7 +14,7 @@ def addtrans():
     args = request.get_json()
     group_id = args['group_id']
     from_ids = args['from']
-    to_id = args['to_id']
+    to_id = args['to_id'][0] # should allow this to be a literal
     amount = args['amount']
     kind = args['kind']
 
@@ -68,3 +68,34 @@ def clearall(group_id):
     srv.add_transaction(int(group_id),0,0,0,CLEAR_ALL)
     return jsonify({"message":"success",
                     "result":0})
+
+@app.route('/addadmin',methods=["POST","GET"])
+@login_required
+def addadmin():
+    # verify that user, group, and membership exist
+    args = request.get_json()
+    print args
+    group_id = args['group']
+    user_id = args['user'][0]
+    group = Group.query.get(group_id)
+    user = User.query.get(user_id)
+    if group == None:
+        return jsonify({"message":"No such group.",
+                        "result":2})
+    if user == None:
+        return jsonify({"message":"No such user.",
+                        "result":1})
+    if user not in group.members:
+        return jsonify({"message":"User is not in the requrested group.",
+                        "result":3})
+    # get the membership
+    member = Member.query.filter(Member.user_id == user_id,
+                                 Member.group_id == group_id).one()
+    # throw an error if the user is already an admin
+    if member.admin == True:
+        return jsonify({"message":"User is already an admin.",
+                        "result":5})
+    # if all errors clear, make the user an admin and commit
+    member.admin = True
+    db.session.commit()
+    return jsonify({"result":0,"message":"success"})

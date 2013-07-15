@@ -1,8 +1,8 @@
 TODO:
-- admins making new admins
-  - admins resigning
+- admins resigning
 - inviting users to join groups
 - requesting to join groups
 - admins making/deleting dummy users
 - email notifications
 - give feedback in the admin view when actions are attempted.
+- put length limits on form fields.

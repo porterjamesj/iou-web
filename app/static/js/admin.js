@@ -26,25 +26,15 @@
      return $button.closest("[transtype]").attr("transtype");
   };
 
-  var getFrom = function($button) {
-    /* Get the user ids of the "froms" for a submission. */
+  var getTag = function($button,tag) {
+    /* Get the user ids of the buttons matching a tag. */
     var userids = $button.closest("[transtype]")
-      .find("[direction=from]")
+      .find("[tag=" + tag +"]")
       .find("button.active")
       .map(function () { return this.getAttribute("uid"); })
       .get();
 
     return _.map(userids,function (uid) { return parseInt(uid,10); });
-  };
-
-  var getTo = function($button) {
-    /* Get the user id of the "to" user for a submission. */
-    var to_id = $button
-      .closest("[transtype]")
-      .find("[direction=to]")
-      .find("button.active")
-      .attr("uid");
-    return parseInt(to_id,10);
   };
 
   var getAmount = function($button) {
@@ -57,18 +47,20 @@
   var submit = function(button) {
     $button = $(button);
     group = getGroup($button);
-    debtors = getFrom($button);
-    creditor = getTo($button);
+    debtors = getTag($button,"from");
+    creditors = getTag($button,"to");
     amount = getAmount($button);
     transtype = getTransType($button);
     if (transtype === "debt") { // This is a debt
-      addTrans(group,amount,debtors,creditor,transtype);
+      addTrans(group,amount,debtors,creditors,transtype);
     } else { // This is a payment, have to reverse the logic
-      addTrans(group,amount,[creditor],debtors[0],transtype);
+      addTrans(group,amount,creditors,debtors,transtype);
     }
   };
 
-  var clearGroup = function (group) {
+  var clearAll = function(button) {
+    $button = $(button);
+    group = getGroup($button);
     $.ajax({
       method: "POST",
       contentType: "application/json",
@@ -76,15 +68,23 @@
     });
   };
 
-  var clearAll = function(button) {
+  var addAdmin = function(button) {
     $button = $(button);
     group = getGroup($button);
-    clearGroup(group);
+    user = getTag($button,"user");
+    $.ajax({
+      method:"POST",
+      contentType: "application/json",
+      url: $SCRIPT_ROOT + "/addadmin",
+      data: JSON.stringify({"user": user,
+                            "group": group})
+      });
   };
 
   exports.addEventListeners = function() {
     $("button[role=submit]").click(function() { submit(this); });
     $("button[role=clearall]").click(function() { clearAll(this); });
+    $("button[role=addadmin]").click(function() { addAdmin(this); });
   };
 
 })(this);
