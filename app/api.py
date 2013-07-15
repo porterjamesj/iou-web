@@ -18,7 +18,7 @@ def addtrans():
     amount = args['amount']
     kind = args['kind']
 
-    fromusers = [User.query.get(from_id) for from_id in from_ids]
+    fromusers = User.query.filter(User.id.in_(from_ids)).all()
     touser = User.query.get(to_id)
 
     # verify that all users exist
