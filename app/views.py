@@ -60,7 +60,6 @@ def dashboard():
     for group in current_user.groups:
         # get all transactions for this group
         transactions = group.transactions
-        print transactions
         graph = srv.build_graph(group.members,transactions)
         graphs[group.name] = srv.display_graph(group.members,graph)
 
