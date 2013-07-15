@@ -1,5 +1,4 @@
 TODO:
-- new user signup
 - admins making new admins
   - admins resigning
 - inviting users to join groups

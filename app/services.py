@@ -6,6 +6,8 @@ from app import db
 from itertools import combinations
 from time import time
 
+# Functions for manipulating the db
+
 def add_transaction(group_id, from_id, to_id, amount, kind):
     """Add the specified transaction to the database."""
     newtrans = Trans(group_id = group_id,

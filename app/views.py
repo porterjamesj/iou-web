@@ -1,7 +1,7 @@
 from app import app, login_manager, db
-from app.forms import LoginForm
+from app.forms import LoginForm, RegisterForm
 from flask import render_template, redirect, flash, url_for, request
-from models import User, Member, Group, Trans
+from app.models import User, Group
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from app import services as srv
 
@@ -25,7 +25,7 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         # try to log the user in
-        user = User.query.filter_by(email = form.email.data).first()
+        user = User.query.filter_by(email = form.email.data).one()
         if user == None:
             # the user can't be found
             flash("No such user.")
@@ -79,3 +79,27 @@ def admin():
             groups[this_group] = this_group.members
     return render_template('admin.html', user=current_user,
                            groups= groups)
+
+#new user registration
+@app.route('/register',methods=["GET","POST"])
+def register():
+    form = RegisterForm()
+    if form.validate_on_submit():
+        # check that we don't already have a user for this email
+        if User.query.filter_by(email = form.email.data).all() != []:
+            flash("A user with that email already exists.")
+            return render_template("register.html",form=form)
+        # put the new user in the database
+        user = User(name = form.name.data,
+                    email = form.email.data,
+                    dummy = False)
+        # generate the user's password
+        user.set_password(form.password.data)
+        # add new user to db
+        db.session.add(user)
+        db.session.commit()
+        # log them in and redirect to the dashboard
+        login_user(user)
+        return redirect(url_for('dashboard'))
+    else:
+        return render_template('register.html',form = form)

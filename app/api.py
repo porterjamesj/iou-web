@@ -26,8 +26,8 @@ def addtrans():
         return jsonify({"message":"No such user(s).",
                         "result":1})
 
-    group = Group.query.get(group_id)
     # verify that the group exists
+    group = Group.query.get(group_id)
     if group == None:
         return jsonify({"message":"No such group.",
                         "result":2})

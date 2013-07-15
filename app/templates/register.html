@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1> Register </h1>
+
+  {# show errors/messages #}
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-error">
+          <button type="button" class="close" data-dismiss="alert">&times;</button>
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  {% for field in form.errors %}
+    {% for error in form.errors[field] %}
+      <div class="alert alert-error">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        {{field}}: {{ error }}
+      </div>
+    {% endfor %}
+  {% endfor %}
+
+  <form action="" method="post" name="register" class="form-horizontal">
+    {{form.hidden_tag()}} {# CSRF prevention #}
+    <p>
+      Name: {{form.name(size=80)}}
+    </p>
+    <p>
+      Email: {{form.email(size=80)}}
+    </p>
+    <p>
+      Password: {{form.password(size=80)}}
+    </p>
+    <p><input type="submit" class="btn" value="Sign Up"></p>
+  </form>
+{% endblock %}
