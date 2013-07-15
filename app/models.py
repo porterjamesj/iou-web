@@ -14,7 +14,7 @@ class Trans(db.Model):
     to_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     group_id = db.Column(db.Integer, db.ForeignKey('group.id'))
     amount = db.Column(db.Numeric(precision = 2))
-    time = db.Column(db.Integer) # UNIX time that the transaction was added
+    time = db.Column(db.Float) # UNIX time that the transaction was added
     # the kind column indicates whether this was a debt or a
     # payment. mathematically they are identical, but from a user's
     # perspective they are different, so we keep track of which is
