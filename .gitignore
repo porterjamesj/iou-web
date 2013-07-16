@@ -2,4 +2,4 @@
 .DS_Store
 config.py
 *.db
-db_testing.py
+make_fake_db.py
