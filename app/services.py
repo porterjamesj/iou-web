@@ -1,5 +1,5 @@
 from __future__ import division
-from app.models import Trans, CLEAR_ALL
+from app.models import Trans, User, Member, Group, CLEAR_ALL
 from collections import defaultdict
 from copy import deepcopy
 from app import db
@@ -18,6 +18,49 @@ def add_transaction(group_id, from_id, to_id, amount, kind):
                      kind = kind)
     db.session.add(newtrans)
     db.session.commit()
+
+def users_exist(user_ids):
+    """Given a list of user ids, return a list of them if they do exist,
+    otherwise return false."""
+    users = User.query.filter(User.id.in_(user_ids)).all()
+    if len(users) != len(user_ids):
+        return False
+    else:
+        return users
+
+def group_exists(group_id):
+    """Return the group if it exists, otherwise return False."""
+    group = Group.query.get(group_id)
+    if group == None:
+        return False
+    else:
+        return group
+
+def users_in_group(users,group):
+    """Return true if all users are members of the group, false
+    otherwise."""
+    if all([user in group.members for user in users]):
+        return True
+    else:
+        return False
+
+def user_is_admin(user,group):
+    """Return true if the user is an admin for the group, false
+    otherwise."""
+    admins = Member.query.filter(Member.admin == True,
+                                 Member.group_id == group.id).all()
+    if user.id in [admin.user_id for admin in admins]:
+        return True
+    else:
+        return False
+
+def set_admin(user,group,setting):
+    """Set the admin status of the user with user_id in the group
+    group_id to the requested setting."""
+    member = Member.query.filter(Member.user_id == user.id,
+                                 Member.group_id == group.id).one()
+    member.admin = setting
+
 
 #These functions work on graphs, which are dicts of dicts that can be thought
 #of as graph[creditor][debtor] = amount.
