@@ -1,7 +1,7 @@
 from app import app, login_manager, db
 from app.forms import LoginForm, RegisterForm
 from flask import render_template, redirect, flash, url_for, request
-from app.models import User, Group
+from app.models import User, Group, Member
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from app import services as srv
 
@@ -75,8 +75,12 @@ def admin():
     groups = {}
     for member in current_user.member:
         if member.admin == True:
-            this_group = Group.query.get(member.group_id)
-            groups[this_group] = this_group.members
+            group = Group.query.get(member.group_id)
+            for member in group.members:
+                member.admin = Member.query.filter(Member.user_id == member.id,
+                                                   Member.group_id == group.id)\
+                                                   .one().admin
+                groups[group] = group.members
     return render_template('admin.html', user=current_user,
                            groups= groups)
 

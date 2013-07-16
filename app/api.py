@@ -74,28 +74,57 @@ def clearall(group_id):
 def addadmin():
     # verify that user, group, and membership exist
     args = request.get_json()
-    print args
     group_id = args['group']
-    user_id = args['user'][0]
+    user_ids = args['user']
     group = Group.query.get(group_id)
-    user = User.query.get(user_id)
+
     if group == None:
         return jsonify({"message":"No such group.",
                         "result":2})
-    if user == None:
-        return jsonify({"message":"No such user.",
-                        "result":1})
-    if user not in group.members:
+    for user_id in user_ids:
+        user = User.query.get(user_id)
+        if user == None:
+            return jsonify({"message":"No such user.",
+                            "result":1})
+        if user not in group.members:
+            return jsonify({"message":"User is not in the requrested group.",
+                            "result":3})
+        # get the membership
+        member = Member.query.filter(Member.user_id == user_id,
+                                     Member.group_id == group_id).one()
+        # throw an error if the user is already an admin
+        if member.admin == True:
+            return jsonify({"message":"User is already an admin.",
+                            "result":5})
+        # if all errors clear, make the user an admin
+        member.admin = True
+
+    # commit and return
+    db.session.commit()
+    return jsonify({"result":0,"message":"success"})
+
+@app.route('/resign/<int:group_id>')
+@login_required
+def resign(group_id):
+    group = Group.query.get(group_id)
+
+    # make sure group exists and user is a member of it
+    if group == None:
+        return jsonify({"message":"No such group.",
+                        "result":2})
+    if current_user not in group.members:
         return jsonify({"message":"User is not in the requrested group.",
                         "result":3})
-    # get the membership
-    member = Member.query.filter(Member.user_id == user_id,
+
+    # make sure user is an admin in the group
+    member = Member.query.filter(Member.user_id == current_user.id,
                                  Member.group_id == group_id).one()
-    # throw an error if the user is already an admin
-    if member.admin == True:
-        return jsonify({"message":"User is already an admin.",
-                        "result":5})
-    # if all errors clear, make the user an admin and commit
-    member.admin = True
+
+    if member.admin == False:
+        return jsonify({"message":"You are not an admin in this group.",
+                        "result":6})
+
+    # if everything looks good, set admin to False
+    member.admin = False
     db.session.commit()
     return jsonify({"result":0,"message":"success"})

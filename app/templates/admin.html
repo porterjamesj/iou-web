@@ -82,11 +82,13 @@
           {# Add admins #}
           <div transtype="addadmin">
             <h4> Add administrators: </h4>
-            <div tag="user" data-toggle="buttons-radio">
+            <div tag="user" data-toggle="buttons-checkbox">
               {% for member in group.members %}
-                <button class="btn btn-small" uid={{ member.id }}>
-                  {{ member.name }}
-                </button>
+                {% if not member.admin %}
+                  <button class="btn btn-small" uid={{ member.id }}>
+                    {{ member.name }}
+                  </button>
+                {% endif %}
               {% endfor %}
               <button role="addadmin" class="btn btn-primary">Submit</button>
             </div>

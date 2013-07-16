@@ -68,7 +68,7 @@
     });
   };
 
-  var addAdmin = function(button) {
+  var addAdmins = function(button) {
     $button = $(button);
     group = getGroup($button);
     user = getTag($button,"user");
@@ -84,7 +84,7 @@
   exports.addEventListeners = function() {
     $("button[role=submit]").click(function() { submit(this); });
     $("button[role=clearall]").click(function() { clearAll(this); });
-    $("button[role=addadmin]").click(function() { addAdmin(this); });
+    $("button[role=addadmin]").click(function() { addAdmins(this); });
   };
 
 })(this);
