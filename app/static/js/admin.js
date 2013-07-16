@@ -81,10 +81,22 @@
       });
   };
 
+  var resign = function(button) {
+    $button = $(button);
+    group = getGroup($button);
+    $.ajax({
+      method:"POST",
+      contentType: "application/json",
+      url: $SCRIPT_ROOT + "/resign/" + group
+      // Make this cause the page to reload
+    })
+  };
+
   exports.addEventListeners = function() {
     $("button[role=submit]").click(function() { submit(this); });
     $("button[role=clearall]").click(function() { clearAll(this); });
     $("button[role=addadmin]").click(function() { addAdmins(this); });
+    $("button[role=resign]").click(function() { resign(this); });
   };
 
 })(this);

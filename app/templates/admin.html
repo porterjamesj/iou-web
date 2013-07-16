@@ -81,7 +81,7 @@
 
           {# Add admins #}
           <div transtype="addadmin">
-            <h4> Add administrators: </h4>
+            <h4> Add more administrators: </h4>
             <div tag="user" data-toggle="buttons-checkbox">
               {% for member in group.members %}
                 {% if not member.admin %}
@@ -92,6 +92,12 @@
               {% endfor %}
               <button role="addadmin" class="btn btn-primary">Submit</button>
             </div>
+          </div>
+
+          {# Resignation #}
+          <div transtype="resign">
+            <h4> Resign as an admin: </h4>
+            <button role="resign" class="btn btn-primary">Resign</button>
           </div>
 
         </div><!-- tab content -->

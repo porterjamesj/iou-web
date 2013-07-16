@@ -87,7 +87,7 @@ def addadmin():
             return jsonify({"message":"No such user.",
                             "result":1})
         if user not in group.members:
-            return jsonify({"message":"User is not in the requrested group.",
+            return jsonify({"message":"User is not in the requested group.",
                             "result":3})
         # get the membership
         member = Member.query.filter(Member.user_id == user_id,
@@ -103,7 +103,7 @@ def addadmin():
     db.session.commit()
     return jsonify({"result":0,"message":"success"})
 
-@app.route('/resign/<int:group_id>')
+@app.route('/resign/<int:group_id>', methods=["POST"])
 @login_required
 def resign(group_id):
     group = Group.query.get(group_id)

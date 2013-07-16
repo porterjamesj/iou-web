@@ -1,5 +1,4 @@
 TODO:
-- admins resigning
 - inviting users to join groups
 - requesting to join groups
 - admins making/deleting dummy users
