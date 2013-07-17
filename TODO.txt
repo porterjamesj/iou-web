@@ -2,7 +2,6 @@ TODO:
 
 Now:
 - inviting users to join groups
-- requesting to join groups
 - removing users from groups
 - admins making/deleting dummy users
 - Add account management stuff
@@ -11,6 +10,7 @@ Now:
   - deleting account
 
 Later:
+- requesting to join groups
 - email notifications
 - give feedback in the admin view when actions are attempted.
 - put length limits on form fields.
