@@ -97,11 +97,12 @@
     _.map(users, function(user) {
       if (user.groups.indexOf(getGroup($button)) == -1) {
         $button.parent().append("<a style='display:block' role='addmember' uid="
-                                + user.id + " href='#'>"
+                                + user.id + ">"
                                 + user.email + " (" + user.name + ")"+
                                 "</a>");
       }
     });
+    $("a[role=addmember]").click(function() { addMember(this); });
   };
 
   var searchUsers = function(button) {
@@ -120,7 +121,7 @@
     $.ajax({
       method:"POST",
       contentType: "application/json",
-      url: $SCRIPT_ROOT + "/addmember"
+      url: $SCRIPT_ROOT + "/addmember",
       data: JSON.stringify({"user_id":$link.attr("uid"),
                             "group_id":getGroup($link)})
     })
@@ -132,7 +133,6 @@
     $("button[role=addadmin]").click(function() { addAdmins(this); });
     $("button[role=resign]").click(function() { resign(this); });
     $("button[role=search]").click(function() { searchUsers(this); });
-    $("a[role=addmember]").click(function() { addMember(this); });
   };
 
 })(this);

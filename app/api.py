@@ -161,5 +161,5 @@ def add_member(dbsrv=dbsrv):
     if not group:
         return jsonify(responses["nogroup"])
 
-    dbsrv.add_member(user,group)
+    dbsrv.add_member(user[0],group)
     return jsonify(responses["success"])
