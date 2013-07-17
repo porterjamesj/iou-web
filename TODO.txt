@@ -1,13 +1,17 @@
 TODO:
+
+Now:
 - inviting users to join groups
 - requesting to join groups
 - removing users from groups
 - admins making/deleting dummy users
-- email notifications
-- give feedback in the admin view when actions are attempted.
-- put length limits on form fields.
-- implement secrity on API methods so that you need to be an admin in the requested group to use them
 - Add account management stuff
   - changing password
   - changing name
   - deleting account
+
+Later:
+- email notifications
+- give feedback in the admin view when actions are attempted.
+- put length limits on form fields.
+- implement secrity on API methods so that you need to be an admin in the requested group to use them
