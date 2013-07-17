@@ -144,3 +144,22 @@ def search_groups(querystring, dbsrv = dbsrv):
                      "members": [m.email for m in group.members]}
         grouplist.append(groupdict)
     return jsonify({"groups":grouplist})
+
+@app.route('/addmember',methods=["POST"])
+@login_required
+def add_member(dbsrv=dbsrv):
+    args = request.get_json()
+    group_id = args['group_id']
+    user_id = args['user_id']
+
+    # check that user and group exist
+    user = dbsrv.users_exist([user_id])
+    group = dbsrv.group_exists(group_id)
+    if not user:
+        return jsonify(responses["nouser"])
+
+    if not group:
+        return jsonify(responses["nogroup"])
+
+    dbsrv.add_member(user,group)
+    return jsonify(responses["success"])

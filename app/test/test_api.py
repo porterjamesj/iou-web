@@ -175,3 +175,29 @@ class TestSearchGroups(APIBase):
                                                dbsrv = self.srvmock).get_data()
             assert "3" in api.search_groups("soccer",
                                                dbsrv = self.srvmock).get_data()
+
+class TestAddMember(APIBase):
+
+    @classmethod
+    def setup_class(self):
+        self.srvmock = Mock()
+        data = json.dumps({"group_id":1,
+                           "user_id":1})
+        self.fake_request = app.test_request_context(data=data,
+                                                     content_type=
+                                                     "application/json")
+
+    def setUp(self):
+        self.srvmock.users_exist.return_value = True
+        self.srvmock.group_exists.return_value = True
+        self.srvmock.users_in_group.return_value = False
+
+
+    def test_succeed_normally(self):
+        with self.fake_request:
+            assert "0" in api.add_member(dbsrv = self.srvmock).get_data()
+
+    def test_fail_if_user_does_not_exist(self):
+        self.srvmock.users_exist.return_value = False
+        with self.fake_request:
+            assert "1" in api.add_member(dbsrv = self.srvmock).get_data()
