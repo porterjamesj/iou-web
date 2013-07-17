@@ -119,3 +119,16 @@ def resign(group_id,dbsrv=dbsrv):
     # if everything looks good, set admin to False
     dbsrv.set_admins([current_user],group,False)
     return jsonify({"result":0,"message":"success"})
+
+
+@app.route('/search/users/<querystring>')
+@login_required
+def search_users(querystring,dbsrv=dbsrv):
+    users = dbsrv.search_users(querystring)
+    userlist = []
+    for user in users:
+        userdict = {"id":user.id,
+                    "name":user.name,
+                    "email":user.email}
+        userlist.append(userdict)
+    return jsonify({"users":userlist})

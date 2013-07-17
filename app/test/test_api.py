@@ -145,3 +145,18 @@ class TestResign(APIBase):
         with self.fake_request:
             self.srvmock.user_is_admin.return_value = False
             assert "6" in api.resign(1,dbsrv = self.srvmock).get_data()
+
+class TestSearchUsers(APIBase):
+    @classmethod
+    def setup_class(self):
+        self.srvmock = Mock()
+        self.srvmock.search_users.return_value = [User(name="james",id=3,
+                                                       email="james@gmail.com")]
+        self.fake_request = app.test_request_context()
+
+    def test_jsonifys_users(self):
+        with self.fake_request:
+            assert "james@gmail" in api.search_users("james",
+                                                     dbsrv = self.srvmock).get_data()
+            assert "3" in api.search_users("james",
+                                           dbsrv = self.srvmock).get_data()
