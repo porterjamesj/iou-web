@@ -25,79 +25,87 @@
 
       {% for group in groups %}
 
+
         <div class="tab-pane" group={{group.id}} id={{group.id}}>
-          {# Adding debts #}
-          <div transtype="debt">
-            <h4> Add debts: </h4>
-            <p>From:</p>
-            <div data-toggle="buttons-checkbox" tag="from">
-              {% for member in group.members %}
-                <button class="btn btn-small" uid={{member.id}}>
-                  {{ member.name }}
-                </button>
-              {% endfor %}
+          <div class="row">
+            {# Adding debts #}
+            <div transtype="debt" class="span4">
+              <h4> Add debts: </h4>
+              <p>From:</p>
+              <div data-toggle="buttons-checkbox" tag="from">
+                {% for member in group.members %}
+                  <button class="btn btn-small" uid={{member.id}}>
+                    {{ member.name }}
+                  </button>
+                {% endfor %}
+              </div>
+              <p>To:</p>
+              <div data-toggle="buttons-radio" tag="to">
+                {% for member in group.members %}
+                  <button class="btn btn-small" uid={{member.id}}>
+                    {{ member.name }}
+                  </button>
+                {% endfor %}
+              </div>
+              <p>Amount:</p>
+              <input name="amount" type="text" pattern="\d+(\.\d{1,2})?" required/>
+              <button role="submit" class="btn btn-primary">Submit</button>
             </div>
-            <p>To:</p>
-            <div data-toggle="buttons-radio" tag="to">
-              {% for member in group.members %}
-                <button class="btn btn-small" uid={{member.id}}>
-                  {{ member.name }}
-                </button>
-              {% endfor %}
-            </div>
-            <p>Amount:</p>
-            <input name="amount" type="text" pattern="\d+(\.\d{1,2})?" required/>
-            <button role="submit" class="btn btn-primary">Submit</button>
-          </div>
 
-          {# Adding paybacks #}
-          <div transtype="payment">
-            <h4> Add payments: </h4>
-            <p>From:</p>
-            <div data-toggle="buttons-radio" tag="from">
-              {% for member in group.members %}
-                <button class="btn btn-small" uid={{ member.id }}>
-                  {{ member.name }}
-                </button>
-              {% endfor %}
-            </div>
-            <p>To:</p>
-            <div data-toggle="buttons-radio" tag="to">
-              {% for member in group.members %}
-                <button class="btn btn-small" uid={{ member.id }}>
-                  {{ member.name }}
-                </button>
-              {% endfor %}
-            </div>
-            <p>Amount:</p>
-            <input name="amount" type="text" pattern="\d+(\.\d{1,2})?" required/>
-            <button role="submit" class="btn btn-primary">Submit</button>
-          </div>
-
-          {# CLEAR_ALL #}
-          <button role="clearall" class="btn btn-primary">
-            Clear all debts
-          </button>
-
-          {# Add admins #}
-          <div transtype="addadmin">
-            <h4> Add more administrators: </h4>
-            <div tag="user" data-toggle="buttons-checkbox">
-              {% for member in group.members %}
-                {% if not member.admin %}
+            {# Adding paybacks #}
+            <div transtype="payment" class="span4">
+              <h4> Add payments: </h4>
+              <p>From:</p>
+              <div data-toggle="buttons-radio" tag="from">
+                {% for member in group.members %}
                   <button class="btn btn-small" uid={{ member.id }}>
                     {{ member.name }}
                   </button>
-                {% endif %}
-              {% endfor %}
+                {% endfor %}
+              </div>
+              <p>To:</p>
+              <div data-toggle="buttons-radio" tag="to">
+                {% for member in group.members %}
+                  <button class="btn btn-small" uid={{ member.id }}>
+                    {{ member.name }}
+                  </button>
+                {% endfor %}
+              </div>
+              <p>Amount:</p>
+              <input name="amount" type="text" pattern="\d+(\.\d{1,2})?" required/>
+              <button role="submit" class="btn btn-primary">Submit</button>
             </div>
-            <button role="addadmin" class="btn btn-primary">Submit</button>
+
+            {# CLEAR_ALL #}
+            <div class="span2">
+              <button role="clearall" class="btn btn-primary">
+                Clear all debts
+              </button>
+            </div>
           </div>
 
-          {# Resignation #}
-          <div transtype="resign">
-            <h4> Resign as an admin: </h4>
-            <button role="resign" class="btn btn-primary">Resign</button>
+          <div class="row">
+            {# Add admins #}
+            <div transtype="addadmin" class="span4">
+              <h4> Add more administrators: </h4>
+              <div tag="user" data-toggle="buttons-checkbox">
+                {% for member in group.members %}
+                  {% if not member.admin %}
+                    <button class="btn btn-small" uid={{ member.id }}>
+                      {{ member.name }}
+                    </button>
+                  {% endif %}
+                {% endfor %}
+              </div>
+              <button role="addadmin" class="btn btn-primary">Submit</button>
+            </div>
+
+            {# Resignation #}
+            <div transtype="resign" class="span4">
+              <h4> Resign as an admin: </h4>
+              <button role="resign" class="btn btn-primary">Resign</button>
+            </div>
+
           </div>
 
           {# Inviting users to group #}

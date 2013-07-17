@@ -96,7 +96,7 @@
     $button.siblings(".user").remove()
     _.map(users, function(user) {
       if (user.groups.indexOf(getGroup($button)) == -1) {
-        $button.parent().append("<a style='display:block' class='user' uid="
+        $button.parent().append("<a style='display:block' role='addmember' uid="
                                 + user.id + " href='#'>"
                                 + user.email + " (" + user.name + ")"+
                                 "</a>");
@@ -115,12 +115,24 @@
     });
   };
 
+  var addMember = function(link) {
+    $link = $(link);
+    $.ajax({
+      method:"POST",
+      contentType: "application/json",
+      url: $SCRIPT_ROOT + "/addmember"
+      data: JSON.stringify({"user_id":$link.attr("uid"),
+                            "group_id":getGroup($link)})
+    })
+  };
+
   exports.addEventListeners = function() {
     $("button[role=submit]").click(function() { submit(this); });
     $("button[role=clearall]").click(function() { clearAll(this); });
     $("button[role=addadmin]").click(function() { addAdmins(this); });
     $("button[role=resign]").click(function() { resign(this); });
     $("button[role=search]").click(function() { searchUsers(this); });
+    $("a[role=addmember]").click(function() { addMember(this); });
   };
 
 })(this);
