@@ -66,3 +66,11 @@ def search_users(querystring):
 def search_groups(querystring):
     """Return all groups whose name is like the query string."""
     return set(Group.query.filter(Group.name.like("%" + querystring + "%")).all())
+
+def add_member(user,group):
+    """Make the user a member of the group, but not an admin."""
+    member = Member(user_id = user.id,
+                    group_id = group.id,
+                    admin = False)
+    db.session.add(member)
+    db.session.commit()

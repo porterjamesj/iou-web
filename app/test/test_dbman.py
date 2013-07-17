@@ -102,3 +102,8 @@ class TestSearchGroups(DbBase):
 
     def test_fails_to_find_groups(self):
         assert dbsrv.search_groups("nope") == set([])
+
+class TestAddMember(DbBase):
+    def test_makes_new_member(self):
+        dbsrv.add_member(self.will,self.duskmantle)
+        assert Member.query.filter(Member.user_id == self.will.id).one()
