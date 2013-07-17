@@ -4,11 +4,14 @@ from app.models import User,Group,Member,Trans
 from app import app, api
 from mock import Mock
 
-class APIBase():
+class APIBase(TestCase):
     """Base class for all api tests to inherit from."""
+    def create_app(self):
+        app.config['LOGIN'] = False
+        return app
 
-class TestAddTrans(TestCase,APIBase):
 
+class TestAddTrans(APIBase):
     @classmethod
     def setup_class(self):
         """Mock services layer, and request."""
@@ -22,9 +25,6 @@ class TestAddTrans(TestCase,APIBase):
                                                      content_type =
                                                      "application/json")
 
-    def create_app(self):
-        app.config['LOGIN'] = False
-        return app
 
     def setUp(self):
         """Reset the mock values for each test."""
@@ -53,17 +53,13 @@ class TestAddTrans(TestCase,APIBase):
             self.srvmock.users_in_group.return_value = False
             assert "3" in api.addtrans(dbsrv = self.srvmock).get_data()
 
-class TestClearAll(TestCase,APIBase):
+class TestClearAll(APIBase):
 
     @classmethod
     def setup_class(self):
         """Mock services layer, and request."""
         self.srvmock = Mock()
         self.fake_request = app.test_request_context()
-
-    def create_app(self):
-        app.config['LOGIN'] = False
-        return app
 
     def setUp(self):
         self.srvmock.group_exists.return_value = Group()
@@ -83,7 +79,7 @@ class TestClearAll(TestCase,APIBase):
             self.srvmock.user_is_admin.return_value = False
             assert "4" in api.clearall(1,dbsrv = self.srvmock).get_data()
 
-class TestAddAdmin(TestCase,APIBase):
+class TestAddAdmin(APIBase):
     @classmethod
     def setup_class(self):
         """Mock services layer, and request."""
@@ -93,10 +89,6 @@ class TestAddAdmin(TestCase,APIBase):
         self.fake_request = app.test_request_context(data = data,
                                                      content_type =
                                                      "application/json")
-
-    def create_app(self):
-        app.config['LOGIN'] = False
-        return app
 
     def setUp(self):
         self.srvmock.group_exists.return_value = Group()
@@ -123,7 +115,7 @@ class TestAddAdmin(TestCase,APIBase):
             self.srvmock.user_is_admin.return_value = True
             assert "5" in api.addadmin(dbsrv =self.srvmock).get_data()
 
-class TestResign(TestCase,APIBase):
+class TestResign(APIBase):
     @classmethod
     def setup_class(self):
         """Mock services layer, and request."""
@@ -134,10 +126,6 @@ class TestResign(TestCase,APIBase):
         self.srvmock.group_exists.return_value = True
         self.srvmock.users_in_group.return_value = True
         self.srvmock.user_is_admin.return_value = True
-
-    def create_app(self):
-        app.config['LOGIN'] = False
-        return app
 
     def test_succeed_normally(self):
         with self.fake_request:
