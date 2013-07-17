@@ -56,3 +56,13 @@ def set_admins(users,group,setting):
     for member in members:
         member.admin = setting
     db.session.commit()
+
+def search_users(querystring):
+    """Return all the users whose name or email is like the query string."""
+    foundname = User.query.filter(User.name.like("%" + querystring + "%")).all()
+    foundemail = User.query.filter(User.email.like("%" + querystring + "%")).all()
+    return set(foundname+foundemail)
+
+def search_groups(querystring):
+    """Return all groups whose name is like the query string."""
+    return set(Group.query.filter(Group.name.like("%" + querystring + "%")).all())

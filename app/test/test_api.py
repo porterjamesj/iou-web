@@ -7,7 +7,6 @@ from mock import Mock
 class APIBase():
     """Base class for all api tests to inherit from."""
 
-
 class TestAddTrans(TestCase,APIBase):
 
     @classmethod
