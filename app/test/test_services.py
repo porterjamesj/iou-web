@@ -1,5 +1,5 @@
 from app.models import User, Group, Trans, Member, DEBT, PAYMENT, CLEAR_ALL
-import app.services as srv
+import app.services.graph as graph
 from nose.tools import raises
 from collections import defaultdict
 
@@ -22,12 +22,13 @@ class TestBuildGraph():
 
     def test_basic(self):
         """The graph should be built correctly in simple cases."""
-        print  srv.build_graph(self.users,
+        print  graph.build_graph(self.users,
                                self.transactions)
-        assert srv.build_graph(self.users,
+        assert graph.build_graph(self.users,
                                self.transactions) == {3: {1: 5.0},
                                                       2: {},
                                                       1: {}}
+
     def test_clear_all(self):
         """Graph should ignore everything that happens before the last
         CLEAR_ALL."""
@@ -35,21 +36,21 @@ class TestBuildGraph():
             Trans(group_id=1,kind=CLEAR_ALL),
             Trans(group_id=1,to_id=2,from_id=3,amount=100,kind=DEBT)
             ])
-        assert  srv.build_graph(self.users,
+        assert  graph.build_graph(self.users,
                                 self.transactions) ==  {3: {},
                                                         2: {3: 100.0},
                                                         1: {}}
 
     def test_no_transactions(self):
         """Should return empty dict of users when there are no transactions."""
-        dg = srv.build_graph(self.users,[]) == {1: {}, 2: {}, 3:{}}
+        dg = graph.build_graph(self.users,[]) == {1: {}, 2: {}, 3:{}}
 
     @raises(RuntimeError)
     def test_error(self):
         """Should error if all transactions are not in the same group."""
         self.transactions.append(
             Trans(group_id=2,to_id=2,from_id=3,amount=100,kind=DEBT))
-        srv.build_graph(self.users,self.transactions)
+        graph.build_graph(self.users,self.transactions)
 
 class TestManipulate():
     """Test mundane graph manipulation functions."""
@@ -60,20 +61,20 @@ class TestManipulate():
 
     def test_addition_normal(self):
         """Adding to an already existing debt should increase it."""
-        assert srv.add(self.graph,1,2,5) == {1: {2: 25,3: 5},
+        assert graph.add(self.graph,1,2,5) == {1: {2: 25,3: 5},
                                              2: {1: 10},
                                              3: {}}
 
     def test_addition_split(self):
         """Adding a debt with multiple debtors should split the debt."""
-        assert srv.add(self.graph,3,[1,2],10) == {1: {2: 20, 3:5},
+        assert graph.add(self.graph,3,[1,2],10) == {1: {2: 20, 3:5},
                                                   2: {1: 10},
                                                   3: {1: 5,2: 5}}
 
     def test_addition_split_self(self):
         """Adding a debt with multiple debtors including the creditor should
         spilt the debt between everyone except the creditor."""
-        assert srv.add(self.graph,3,[1,2,3],15) == {1: {2: 20, 3:5},
+        assert graph.add(self.graph,3,[1,2,3],15) == {1: {2: 20, 3:5},
                                                     2: {1: 10},
                                                     3: {1: 5,2: 5}}
 
@@ -91,15 +92,15 @@ class TestEasyGraph():
 
     def test_get_flows(self):
         """Flows in and out of each node should be calculated correctly."""
-        assert srv.get_flows(self.graph) == self.flows
+        assert graph.get_flows(self.graph) == self.flows
 
     def test_flows2graph(self):
         """Simple flow sets should be correctly converted into graphs."""
-        assert srv.flows2graph(self.flows) == self.simplegraph
+        assert graph.flows2graph(self.flows) == self.simplegraph
 
     def test_simplify_no_subgraphs(self):
         """Easy graphs with no subgraphs should simplify correctly."""
-        assert srv.simplify(self.graph) == self.simplegraph
+        assert graph.simplify(self.graph) == self.simplegraph
 
 
 class TestHardGraph():
@@ -121,18 +122,18 @@ class TestHardGraph():
     # this is all the same as above, might refactor later
     def test_get_flows(self):
         """Flows in and out of each node should be calculated correctly."""
-        assert srv.get_flows(self.graph) == self.flows
+        assert graph.get_flows(self.graph) == self.flows
 
     def test_flows2graph(self):
         """Harder flow sets should be correctly converted into graphs."""
-        assert srv.flows2graph(self.flows) == self.simplegraph
+        assert graph.flows2graph(self.flows) == self.simplegraph
 
     def test_simplify_with_subgraphs(self):
         """Harder graphs with subgraphs should simplify correctly."""
-        assert srv.simplify(self.graph) == self.simplegraph
+        assert graph.simplify(self.graph) == self.simplegraph
 
     def test_simplify_bug(self):
-        assert srv.simplify({1: {3: 5.0},
+        assert graph.simplify({1: {3: 5.0},
                              2: {1: 10.0, 3: 5.0},
                              3: {2: 15.0}}) ==  {3: {1: 5.0},
                                                       2: {},
@@ -155,7 +156,7 @@ class TestDisplayGraph():
 
     def test_basic(self):
         """display_graph should work as expected on simple inputs."""
-        assert srv.display_graph(self.users,
+        assert graph.display_graph(self.users,
                                  self.graph) == {"alice": {"bob": 20, "charlie":5},
                                                  "bob": {"alice":10},
                                                  "charlie": {}}
@@ -165,4 +166,4 @@ class TestDisplayGraph():
         """display_graph should raise an error if the users list does not contain
         all the users in the graph."""
         del self.graph[0]
-        srv.display_graph(self.users,self.graph)
+        graph.display_graph(self.users,self.graph)

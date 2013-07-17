@@ -1,6 +1,5 @@
 from app.models import User, Group, Trans, Member, DEBT, PAYMENT, CLEAR_ALL
-import app.services as srv
-from nose.tools import raises
+import app.services.db as dbsrv
 from flask.ext.testing import TestCase
 from app import app,db
 
@@ -45,40 +44,46 @@ class TestDb(TestCase):
 
     def test_users_exist_true(self):
         """users_exist should return the user correctly."""
-        assert srv.users_exist([1]) == [User.query.get(1)]
+        assert dbsrv.users_exist([1]) == [User.query.get(1)]
 
     def test_users_exist_false(self):
         """users_exist should return false correctly."""
-        assert srv.users_exist([30]) == False
-        assert srv.users_exist([1,30]) == False
+        assert dbsrv.users_exist([30]) == False
+        assert dbsrv.users_exist([1,30]) == False
 
     def test_group_exists_true(self):
         """Should return true when the group exists."""
-        assert srv.group_exists(1) == Group.query.get(1)
+        assert dbsrv.group_exists(1) == Group.query.get(1)
 
     def test_group_exists_false(self):
         """Should return fase when the group doesn't exist."""
-        assert srv.group_exists(30) == False
+        assert dbsrv.group_exists(30) == False
 
     def test_users_in_group_true(self):
         """Should return true if users are in the group."""
-        assert srv.users_in_group([self.james],self.duskmantle) == True
+        assert dbsrv.users_in_group([self.james],self.duskmantle) == True
 
     def test_users_in_group_false(self):
         """Should return false if users are not in the group."""
-        assert srv.users_in_group([self.will],self.duskmantle) == False
+        assert dbsrv.users_in_group([self.will],self.duskmantle) == False
 
     def test_user_is_admin_true(self):
         """Should return true if the user is an admin."""
-        assert srv.user_is_admin(self.james,self.duskmantle) == True
+        assert dbsrv.user_is_admin(self.james,self.duskmantle) == True
 
     def test_user_is_admin_false(self):
         """Should return false if the user is not an admin."""
-        assert srv.user_is_admin(self.will,self.duskmantle) == False
+        assert dbsrv.user_is_admin(self.will,self.duskmantle) == False
 
-    def test_set_admin(self):
+    def test_set_admins(self):
         """Setting admin status should work."""
-        srv.set_admin(self.james,self.duskmantle,False)
+        dbsrv.set_admins([self.james],self.duskmantle,False)
         assert Member.query.filter(Member.user_id == self.james.id,
                                    Member.group_id == self.duskmantle.id).one()\
                                    .admin == False
+
+    def test_add_trans(self):
+        """Transactions should be added correctly."""
+        dbsrv.add_transaction(1,1,2,20,DEBT)
+        assert len(Trans.query.all()) == 1
+        assert Trans.query.all()[0].amount == 20

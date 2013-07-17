@@ -3,7 +3,7 @@ from app.forms import LoginForm, RegisterForm
 from flask import render_template, redirect, flash, url_for, request
 from app.models import User, Group, Member
 from flask.ext.login import login_user, logout_user, current_user, login_required
-from app import services as srv
+import app.services.graph as graph
 
 # the user loader class used by the login manager
 @login_manager.user_loader
@@ -60,8 +60,8 @@ def dashboard():
     for group in current_user.groups:
         # get all transactions for this group
         transactions = group.transactions
-        graph = srv.build_graph(group.members,transactions)
-        graphs[group.name] = srv.display_graph(group.members,graph)
+        this_graph = graph.build_graph(group.members,transactions)
+        graphs[group.name] = graph.display_graph(group.members,this_graph)
 
     return render_template('dash.html',user=current_user,
                            groups = graphs)
