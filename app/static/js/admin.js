@@ -37,11 +37,10 @@
     return _.map(userids,function (uid) { return parseInt(uid,10); });
   };
 
-  var getAmount = function($button) {
-    var amount = $button.closest("[transtype]")
-      .find("input[name=amount]")
+  var getField = function($button,field) {
+     return $button.closest("[transtype]")
+      .find("input[name=" + field + "]")
       .val();
-    return parseInt(amount,10);
   };
 
   var submit = function(button) {
@@ -49,7 +48,7 @@
     group = getGroup($button);
     debtors = getTag($button,"from");
     creditors = getTag($button,"to");
-    amount = getAmount($button);
+    amount = parseInt(getField($button,"amount"),10);
     transtype = getTransType($button);
     if (transtype === "debt") { // This is a debt
       addTrans(group,amount,debtors,creditors,transtype);
@@ -87,9 +86,33 @@
     $.ajax({
       method:"POST",
       contentType: "application/json",
-      url: $SCRIPT_ROOT + "/resign/" + group
-      // Make this cause the page to reload
+      url: $SCRIPT_ROOT + "/resign/" + group,
+      success: window.location.reload()
     })
+  };
+
+  var appendUsers = function($button,data) {
+    users = data['users'];
+    $button.siblings(".user").remove()
+    _.map(users, function(user) {
+      if (user.groups.indexOf(getGroup($button)) == -1) {
+        $button.parent().append("<a style='display:block' class='user' uid="
+                                + user.id + " href='#'>"
+                                + user.email + " (" + user.name + ")"+
+                                "</a>");
+      }
+    });
+  };
+
+  var searchUsers = function(button) {
+    $button = $(button);
+    querystring = getField($button,"search");
+    $.ajax({
+      method:"POST",
+      contentType: "application/json",
+      url: $SCRIPT_ROOT + "/search/users/" + querystring,
+      success: function (data) { appendUsers($button,data); }
+    });
   };
 
   exports.addEventListeners = function() {
@@ -97,6 +120,7 @@
     $("button[role=clearall]").click(function() { clearAll(this); });
     $("button[role=addadmin]").click(function() { addAdmins(this); });
     $("button[role=resign]").click(function() { resign(this); });
+    $("button[role=search]").click(function() { searchUsers(this); });
   };
 
 })(this);

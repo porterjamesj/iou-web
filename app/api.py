@@ -121,14 +121,27 @@ def resign(group_id,dbsrv=dbsrv):
     return jsonify({"result":0,"message":"success"})
 
 
-@app.route('/search/users/<querystring>')
+@app.route('/search/users/<querystring>',methods=["POST"])
 @login_required
-def search_users(querystring,dbsrv=dbsrv):
+def search_users(querystring,dbsrv = dbsrv):
     users = dbsrv.search_users(querystring)
     userlist = []
     for user in users:
         userdict = {"id":user.id,
                     "name":user.name,
-                    "email":user.email}
+                    "email":user.email,
+                    "groups": [g.id for g in user.groups]}
         userlist.append(userdict)
     return jsonify({"users":userlist})
+
+@app.route('/search/groups/<querystring>',methods=["POST"])
+@login_required
+def search_groups(querystring, dbsrv = dbsrv):
+    groups = dbsrv.search_groups(querystring)
+    grouplist = []
+    for group in groups:
+        groupdict = {"id":group.id,
+                     "name":group.name,
+                     "members": [m.email for m in group.members]}
+        grouplist.append(groupdict)
+    return jsonify({"groups":grouplist})

@@ -25,7 +25,7 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         # try to log the user in
-        user = User.query.filter_by(email = form.email.data).one()
+        user = User.query.filter_by(email = form.email.data).first()
         if user == None:
             # the user can't be found
             flash("No such user.")

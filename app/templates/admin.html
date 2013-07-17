@@ -90,8 +90,8 @@
                   </button>
                 {% endif %}
               {% endfor %}
-              <button role="addadmin" class="btn btn-primary">Submit</button>
             </div>
+            <button role="addadmin" class="btn btn-primary">Submit</button>
           </div>
 
           {# Resignation #}
@@ -100,12 +100,18 @@
             <button role="resign" class="btn btn-primary">Resign</button>
           </div>
 
+          {# Inviting users to group #}
+          <div transtype="invite">
+            <h4> Invite users </h4>
+            <input name="search" type="text"/>
+            <button role="search" class="btn btn-primary">Search Users</button>
+          </div>
+
         </div><!-- tab content -->
       {% endfor %}
     </div>
   </div>
 {% endblock %}
-
 
 {% block scripts %}
   {{ super() }}

@@ -160,3 +160,18 @@ class TestSearchUsers(APIBase):
                                                      dbsrv = self.srvmock).get_data()
             assert "3" in api.search_users("james",
                                            dbsrv = self.srvmock).get_data()
+
+class TestSearchGroups(APIBase):
+    @classmethod
+    def setup_class(self):
+        self.srvmock = Mock()
+        self.srvmock.search_groups.return_value = [Group(id=3,
+                                                         name = "Soccer Club")]
+        self.fake_request = app.test_request_context()
+
+    def test_jsonifys_groups(self):
+        with self.fake_request:
+            assert "Club" in api.search_groups("soccer",
+                                               dbsrv = self.srvmock).get_data()
+            assert "3" in api.search_groups("soccer",
+                                               dbsrv = self.srvmock).get_data()
