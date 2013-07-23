@@ -7,14 +7,15 @@ DEBT = 0
 PAYMENT = 1
 CLEAR_ALL = 2
 
+
 class Trans(db.Model):
     """A table of all transactions."""
-    id = db.Column(db.Integer, primary_key = True)
+    id = db.Column(db.Integer, primary_key=True)
     from_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     to_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     group_id = db.Column(db.Integer, db.ForeignKey('group.id'))
-    amount = db.Column(db.Numeric(precision = 2))
-    time = db.Column(db.Float) # UNIX time that the transaction was added
+    amount = db.Column(db.Numeric(precision=2))
+    time = db.Column(db.Float)  # UNIX time that the transaction was added
     # the kind column indicates whether this was a debt or a
     # payment. mathematically they are identical, but from a user's
     # perspective they are different, so we keep track of which is
@@ -24,21 +25,22 @@ class Trans(db.Model):
     def __repr__(self):
         return "<Trans {0}>".format(self.id)
 
+
 class User(db.Model):
     """Keeps track of basic information about a user."""
-    id = db.Column(db.Integer, primary_key = True)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(60))
     email = db.Column(db.String(100))
     dummy = db.Column(db.Boolean)
     pw_hash = db.Column(db.String(160))
 
-    groups = association_proxy("member","group")
+    groups = association_proxy("member", "group")
 
     # pw hashing and checking
     def set_password(self, password):
         self.pw_hash = generate_password_hash(password)
 
-    def check_password(self,password):
+    def check_password(self, password):
         return check_password_hash(self.pw_hash, password)
 
     #methods required by flask-login
@@ -58,28 +60,30 @@ class User(db.Model):
     def __repr__(self):
         return "<User {0}>".format(self.name)
 
+
 class Group(db.Model):
     """Manages facts about groups. Name, etc."""
-    id = db.Column(db.Integer, primary_key = True)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(60))
 
-    members = association_proxy("member","user")
-    transactions = db.relation(Trans,order_by = Trans.time)
+    members = association_proxy("member", "user")
+    transactions = db.relation(Trans, order_by=Trans.time)
 
     def __repr__(self):
         return "<Group {0}>".format(self.name)
+
 
 class Member(db.Model):
     """Keeps track of which users are
     members of which groups, and whether or not members of groups
     are admins."""
-    id = db.Column(db.Integer, primary_key = True)
+    id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     group_id = db.Column(db.Integer, db.ForeignKey('group.id'))
     admin = db.Column(db.Boolean)
 
-    user = db.relation(User, backref = "member")
-    group = db.relationship(Group, backref = "member")
+    user = db.relation(User, backref="member")
+    group = db.relationship(Group, backref="member")
 
     def __repr__(self):
         return "<Member {0}>".format(self.id)

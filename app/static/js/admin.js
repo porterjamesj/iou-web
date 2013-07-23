@@ -1,5 +1,3 @@
-/* globals $SCRIPT_ROOT, $ */
-
 ;(function(exports) {
 
   var addTrans = function(group_id,amount,from,to_id,kind) {
@@ -23,7 +21,7 @@
 
   var getTransType =  function($button) {
     /* Figure out whether a button is for a debt or a payment */
-     return $button.closest("[transtype]").attr("transtype");
+    return $button.closest("[transtype]").attr("transtype");
   };
 
   var getTag = function($button,tag) {
@@ -38,18 +36,18 @@
   };
 
   var getField = function($button,field) {
-     return $button.closest("[transtype]")
+    return $button.closest("[transtype]")
       .find("input[name=" + field + "]")
       .val();
   };
 
   var submit = function(button) {
-    $button = $(button);
-    group = getGroup($button);
-    debtors = getTag($button,"from");
-    creditors = getTag($button,"to");
-    amount = parseInt(getField($button,"amount"),10);
-    transtype = getTransType($button);
+    var $button = $(button);
+    var group = getGroup($button);
+    var debtors = getTag($button,"from");
+    var creditors = getTag($button,"to");
+    var amount = parseInt(getField($button,"amount"),10);
+    var transtype = getTransType($button);
     if (transtype === "debt") { // This is a debt
       addTrans(group,amount,debtors,creditors,transtype);
     } else { // This is a payment, have to reverse the logic
@@ -58,42 +56,42 @@
   };
 
   var clearAll = function(button) {
-    $button = $(button);
-    group = getGroup($button);
+    var $button = $(button);
+    var group = getGroup($button);
     $.ajax({
       method: "POST",
       contentType: "application/json",
-      url: $SCRIPT_ROOT + "/clearall/" + group,
+      url: $SCRIPT_ROOT + "/clearall/" + group
     });
   };
 
   var addAdmins = function(button) {
-    $button = $(button);
-    group = getGroup($button);
-    user = getTag($button,"user");
+    var $button = $(button);
+    var group = getGroup($button);
+    var user = getTag($button,"user");
     $.ajax({
       method:"POST",
       contentType: "application/json",
       url: $SCRIPT_ROOT + "/addadmin",
       data: JSON.stringify({"user": user,
                             "group": group})
-      });
+    });
   };
 
   var resign = function(button) {
-    $button = $(button);
-    group = getGroup($button);
+    var $button = $(button);
+    var group = getGroup($button);
     $.ajax({
       method:"POST",
       contentType: "application/json",
       url: $SCRIPT_ROOT + "/resign/" + group,
       success: window.location.reload()
-    })
+    });
   };
 
   var appendUsers = function($button,data) {
-    users = data['users'];
-    $button.siblings(".user").remove()
+    var users = data['users'];
+    $button.siblings(".user").remove();
     _.map(users, function(user) {
       if (user.groups.indexOf(getGroup($button)) == -1) {
         $button.parent().append("<a style='display:block' role='addmember' uid="
@@ -106,8 +104,8 @@
   };
 
   var searchUsers = function(button) {
-    $button = $(button);
-    querystring = getField($button,"search");
+    var $button = $(button);
+    var querystring = getField($button,"search");
     $.ajax({
       method:"POST",
       contentType: "application/json",
@@ -117,14 +115,14 @@
   };
 
   var addMember = function(link) {
-    $link = $(link);
+    var $link = $(link);
     $.ajax({
       method:"POST",
       contentType: "application/json",
       url: $SCRIPT_ROOT + "/addmember",
       data: JSON.stringify({"user_id":$link.attr("uid"),
                             "group_id":getGroup($link)})
-    })
+    });
   };
 
   exports.addEventListeners = function() {
