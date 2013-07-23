@@ -1,7 +1,6 @@
 TODO:
 
 Now:
-- inviting users to join groups
 - removing users from groups
 - admins making/deleting dummy users
 - Add account management stuff
