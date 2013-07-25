@@ -9,19 +9,6 @@ from app.services import db as dbsrv
 
 # dict of possible responses
 
-RESPONSES = {"success": {"result": 0, "message": "success"},
-             "nouser": {"message": "No such user(s).", "result": 1},
-             "nogroup": {"message": "No such group.", "result": 2},
-             "not_members": {"message": "Users not in requested group.",
-                             "result": 3},
-             "notauth": {"message": "Not authorized", "result": 4},
-             "admin_already": {"message": "User is already an admin.",
-                               "result": 5},
-             "member_already": {"message": "User is already a member.",
-                                "result": 6}
-             }
-
-
 @app.route('/add', methods=['POST'])
 @login_required
 def addtrans(dbsrv=dbsrv):
@@ -34,14 +21,14 @@ def addtrans(dbsrv=dbsrv):
     kind = args['kind']
 
     # verify that all users exist
-    from_users = dbsrv.users_exist(from_ids)
-    to_user = dbsrv.users_exist(to_id)
+    from_users = dbsrv.get_users(from_ids)
+    to_user = dbsrv.get_users(to_id)
 
     if not from_users or not to_user:
         return jsonify(RESPONSES["nouser"])
 
     # verify that the group exists
-    group = dbsrv.group_exists(group_id)
+    group = dbsrv.get_group(group_id)
     if not group:
         return jsonify(RESPONSES["nogroup"])
 
@@ -67,7 +54,7 @@ def addtrans(dbsrv=dbsrv):
 @login_required
 def clearall(group_id, dbsrv=dbsrv):
     # verify that this group_id exists
-    group = dbsrv.group_exists(group_id)
+    group = dbsrv.get_group(group_id)
     if not group:
         return jsonify(RESPONSES["nogroup"])
 
@@ -81,28 +68,28 @@ def clearall(group_id, dbsrv=dbsrv):
 
 
 @app.route('/addadmin', methods=["POST", "GET"])
-@login_required
+# @login_required
 def addadmin(dbsrv=dbsrv):
     # verify that user, group, and membership exist
     args = request.get_json()
     group_id = args['group']
     user_ids = args['user']
 
-    group = dbsrv.group_exists(group_id)
-    if not group:
-        return jsonify(RESPONSES["nogroup"])
+    # group = dbsrv.get_group(group_id)
+    # if not group:
+    #     return jsonify(RESPONSES["nogroup"])
 
-    users = dbsrv.users_exist(user_ids)
-    if not users:
-        return jsonify(RESPONSES["nouser"])
-    else:
-        if not dbsrv.users_in_group(users, group):
-            return jsonify(RESPONSES["not_member"])
-        # return error if user is already an admin
-        if any([dbsrv.user_is_admin(user, group) for user in users]):
-            return jsonify(RESPONSES["admin_already"])
-        # if all errors clear, make the users admins
-        dbsrv.set_admins(users, group, True)
+    # users = dbsrv.get_users(user_ids)
+    # if not users:
+    #     return jsonify(RESPONSES["nouser"])
+    # else:
+    #     if not dbsrv.users_in_group(users, group):
+    #         return jsonify(RESPONSES["not_member"])
+    #     # return error if user is already an admin
+    #     if any([dbsrv.user_is_admin(user, group) for user in users]):
+    #         return jsonify(RESPONSES["admin_already"])
+    #     # if all errors clear, make the users admins
+    dbsrv.set_admins(user_ids, group_id, True)
 
     # return
     return jsonify(RESPONSES["success"])
@@ -112,7 +99,7 @@ def addadmin(dbsrv=dbsrv):
 @login_required
 def resign(group_id, dbsrv=dbsrv):
     # make sure group exists and user is a member of it
-    group = dbsrv.group_exists(group_id)
+    group = dbsrv.get_group(group_id)
     if not group:
         return jsonify(RESPONSES["nogroup"])
     if not dbsrv.users_in_group([current_user], group):
@@ -155,20 +142,20 @@ def search_groups(querystring, dbsrv=dbsrv):
 
 
 @app.route('/addmember', methods=["POST"])
-@login_required
+# @login_required
 def add_member(dbsrv=dbsrv):
     args = request.get_json()
     group_id = args['group_id']
     user_id = args['user_id']
 
-    # check that user and group exist
-    user = dbsrv.users_exist([user_id])
-    group = dbsrv.group_exists(group_id)
-    if not user:
-        return jsonify(RESPONSES["nouser"])
+    # # check that user and group exist
+    # user = dbsrv.get_users([user_id])
+    # group = dbsrv.get_group(group_id)
+    # if not user:
+    #     return jsonify(RESPONSES["nouser"])
 
-    if not group:
-        return jsonify(RESPONSES["nogroup"])
+    # if not group:
+    #     return jsonify(RESPONSES["nogroup"])
 
-    dbsrv.add_member(user[0], group)
+    dbsrv.add_member(user_id, group_id)
     return jsonify(RESPONSES["success"])
