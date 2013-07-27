@@ -79,5 +79,5 @@ def database_error(error):
 def json_parse_error(error):
     response = jsonify({"message":
                         "JSON parsing failed."})
-    response.status_code = 404
+    response.status_code = 406
     return response
