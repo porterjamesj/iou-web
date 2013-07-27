@@ -11,15 +11,14 @@ login_manager.init_app(app)
 login_manager.login_view = "login"
 
 # read config file
-app.config.from_object('config')
+app.config.from_object('test_config')
 
 
 # create db object
 db = SQLAlchemy(app)
 
-#turn referential integrity on if configured
+#turn referential integrity on if testing
 if app.config.get('REF_INTEGRITY'):
-
     @event.listens_for(db.engine, "connect")
     def set_sqlite_pragma(dbapi_connection, connection_record):
         cursor = dbapi_connection.cursor()
