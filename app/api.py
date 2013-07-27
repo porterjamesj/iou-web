@@ -2,10 +2,10 @@
 from __future__ import division
 from app import app
 from app.models import DEBT, PAYMENT, CLEAR_ALL
-from flask import jsonify, request
-from flask.ext.login import current_user, login_required
 from app.services import db as dbsrv
 from app import errors as err
+from flask import jsonify, request, abort, make_response
+from flask.ext.login import current_user, login_required
 
 # the success respones
 success = {"result": 0, "message": "success"}
@@ -15,8 +15,8 @@ success = {"result": 0, "message": "success"}
 
 
 @app.route('/transactions', methods=['POST'])
-# @login_required
-def posttrans(dbsrv=dbsrv):
+@login_required
+def post_trans(dbsrv=dbsrv):
     # try to extract info from JSON
     try:
         args = request.get_json()
@@ -54,7 +54,7 @@ def posttrans(dbsrv=dbsrv):
 
 
 @app.route('/users', methods=["GET"])
-# @login_required
+@login_required
 def search_users(dbsrv=dbsrv):
     """A GET request to /users will do a search."""
     try:
@@ -73,9 +73,22 @@ def search_users(dbsrv=dbsrv):
     return jsonify({"result": userlist})
 
 
+@app.route('/users/<int:user_id>', methods=["GET"])
+@login_required
+def get_user(user_id, dbsrv=dbsrv):
+    """This will get a specific user_id."""
+    user = dbsrv.get_user(user_id)
+    if not user:
+        abort(404)
+    else:
+        return jsonify({"users": {"name": user.name,
+                                  "email": user.email,
+                                  "groups": [g.id for g in user.groups]}})
+
+
 @app.route('/users/<int:user_id>', methods=["PUT"])
-# @login_required
-def putuser(user_id, dbsrv=dbsrv):
+@login_required
+def put_user(user_id, dbsrv=dbsrv):
     """A PUT request to users will update some combination of
     name, email, and admin status."""
     try:
@@ -92,29 +105,15 @@ def putuser(user_id, dbsrv=dbsrv):
                           name=name,
                           email=email)
     if admin is not None and group_id is not None:
-        print type(admin)
         dbsrv.set_admin(user_id, group_id, bool(admin))
-    # return
-    return "", 200
+    return make_response("", 200)
 
-
-@app.route('/users/<int:user_id>', methods=["GET"])
-# @login_required
-def getuser(user_id, dbsrv=dbsrv):
-    """This will get a specific user_id."""
-    user = dbsrv.get_user(user_id)
-    if not user:
-        return "", 404
-    else:
-        return jsonify({"users": {"name": user.name,
-                                  "email": user.email,
-                                  "groups": [g.id for g in user.groups]}})
 
 # GROUP
 
 
 @app.route('/groups', methods=["GET"])
-# @login_required
+@login_required
 def search_groups(dbsrv=dbsrv):
     """A GET request to /groups does a search."""
     try:
@@ -132,51 +131,54 @@ def search_groups(dbsrv=dbsrv):
     return jsonify({"groups": grouplist})
 
 
-@app.route('/groups/<int:group_id>/users/<int:user_id>', methods=['GET'])
-# @login_required
-def is_member(group_id, user_id):
-    if dbsrv.users_in_group(user_id, group_id):
-        return "", 200
-    else:
-        return "", 404
-
-
-@app.route('/groups/<int:group_id>/users/<int:user_id>', methods=['POST'])
-# @login_required
-def new_member(group_id, user_id):
-    """A PUT of this format will make a user a member of a group."""
-    dbsrv.add_member(user_id, group_id)
-    return "", 200
-
-
 @app.route('/groups/<int:group_id>', methods=["GET"])
-def get_group(group_id):
+def get_group(group_id, dbsrv=dbsrv):
     """Get info on a specific group."""
     group = dbsrv.get_group(group_id)
     if not group:
-        return "", 404
+        return abort(404)
     else:
         return jsonify({"groups": {"name": group.name,
                                    "members": [u.id for u in group.members]}})
 
 
 @app.route('/groups/<int:group_id>', methods=["PUT"])
-def put_group(group_id):
+def put_group(group_id, dbsrv=dbsrv):
     try:
         args = request.get_json()
-        name = args["name"]
+        name = args.get("name")
     except:
-        err.JSONParseError("JSON Parsing failed.")
+        raise err.JSONParseError("JSON Parsing failed.")
     dbsrv.set_name(group_id, name)
-    return "", 200
+    return make_response("", 200)
+
+
+# MEMBER
+
+
+@app.route('/groups/<int:group_id>/users/<int:user_id>', methods=['GET'])
+@login_required
+def is_member(group_id, user_id, dbsrv=dbsrv):
+    if dbsrv.users_in_group(user_id, group_id):
+        return make_response("", 200)
+    else:
+        abort(404)
+
+
+@app.route('/groups/<int:group_id>/users/<int:user_id>', methods=['POST'])
+@login_required
+def new_member(group_id, user_id, dbsrv=dbsrv):
+    """A PUT of this format will make a user a member of a group."""
+    dbsrv.add_member(user_id, group_id)
+    return make_response("", 200)
 
 
 #SELF
 
 
 @app.route('/self', methods=["PUT"])
-# @login_required
-def putself(group_id, dbsrv=dbsrv):
+@login_required
+def put_self(group_id, dbsrv=dbsrv):
     try:
         args = request.get_json()
         group_id = args.get('group_id')
