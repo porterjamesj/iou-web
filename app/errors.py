@@ -21,11 +21,11 @@ class DatabaseError(Exception):
     pass
 
 
-class UserNotFoundError(DatabaseError):
+class UserDoesNotExistError(DatabaseError):
     pass
 
 
-class GroupNotFoundError(DatabaseError):
+class GroupDoesNotExistError(DatabaseError):
     pass
 
 
