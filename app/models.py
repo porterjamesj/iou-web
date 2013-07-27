@@ -30,7 +30,7 @@ class User(db.Model):
     """Keeps track of basic information about a user."""
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(60))
-    email = db.Column(db.String(100))
+    email = db.Column(db.String(100), index=True, unique=True)
     dummy = db.Column(db.Boolean)
     pw_hash = db.Column(db.String(160))
 
@@ -64,7 +64,7 @@ class User(db.Model):
 class Group(db.Model):
     """Manages facts about groups. Name, etc."""
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(60))
+    name = db.Column(db.String(60), index=True)
 
     members = association_proxy("member", "user")
     transactions = db.relation(Trans, order_by=Trans.time)

@@ -1,7 +1,9 @@
-from app.models import User, Group, Trans, Member, DEBT
+from app.models import User, Group, Trans, Member, DEBT, CLEAR_ALL
 import app.services.db as dbsrv
 from flask.ext.testing import TestCase
 from app import app, db
+from app import errors as err
+from nose.tools import raises
 
 
 class DbBase(TestCase):
@@ -14,9 +16,9 @@ class DbBase(TestCase):
         db.create_all()
 
         # make some users
-        names = ['James', 'Will']
+        names = ['James', 'Will', 'John']
 
-        emails = ['james@gmail.com', 'will@gmail.com']
+        emails = ['james@gmail.com', 'will@gmail.com', 'John@gmail.com']
 
         for name, email in zip(names, emails):
             user = User(name=name, email=email, dummy=False)
@@ -26,10 +28,13 @@ class DbBase(TestCase):
 
         self.james = User.query.get(1)
         self.will = User.query.get(2)
+        self.john = User.query.get(3)
 
         # make duskmantle group and assign members
         self.duskmantle = Group(name='Duskmantle, House of Shadows')
         db.session.add(self.duskmantle)
+        will_dm = Member(user_id=2, group_id=1, admin=False)
+        db.session.add(will_dm)
         db.session.commit()
 
         # make me an admin in duskmantle
@@ -42,76 +47,79 @@ class DbBase(TestCase):
         db.drop_all()
 
 
-class TestUsersExist(DbBase):
-    """Test that the db manipulation services work correctly."""
-
-    def test_gets_users(self):
-        assert dbsrv.users_exist([1]) == [User.query.get(1)]
-
-    def test_returns_false_if_users_not_found(self):
-        assert dbsrv.users_exist([30]) is False
-        assert dbsrv.users_exist([1, 30]) is False
-
-
-class TestGroupExists(DbBase):
-    def test_gets_groups(self):
-        assert dbsrv.group_exists(1) == Group.query.get(1)
-
-    def test_returns_false_if_groups_not_found(self):
-        assert dbsrv.group_exists(30) is False
-
-
-class TestUsersInGroup(DbBase):
-    def test_returns_true_if_user_in_group(self):
-        """Should return true if users are in the group."""
-        assert dbsrv.users_in_group([self.james], self.duskmantle) is True
-
-    def test_returns_false_if_user_not_in_group(self):
-        """Should return false if users are not in the group."""
-        assert dbsrv.users_in_group([self.will], self.duskmantle) is False
-
-
-class TestUserIsAdmin(DbBase):
-    def test_returns_true_if_user_is_admin(self):
-        assert dbsrv.user_is_admin(self.james, self.duskmantle) is True
-
-    def test_retuns_false_if_user_is_not_admin(self):
-        assert dbsrv.user_is_admin(self.will, self.duskmantle) is False
-
-
-class TestSetAdmins(DbBase):
-    def test_set_admins(self):
-        dbsrv.set_admins([self.james], self.duskmantle, False)
-        assert Member.query.filter(Member.user_id == self.james.id,
-                                   Member.group_id == self.duskmantle.id)\
-                           .one().admin is False
-
-
-class TestAddTrans(DbBase):
-    def test_add_trans(self):
+class TestAddTransaction(DbBase):
+    def test_succeeds_normally(self):
         dbsrv.add_transaction(1, 1, 2, 20, DEBT)
-        assert len(Trans.query.all()) == 1
-        assert Trans.query.all()[0].amount == 20
+        newtrans = Trans.query.get(1)
+        assert newtrans.amount == 20
+
+    @raises(err.UsersNotInGroupError)
+    def test_fail_is_users_not_in_group(self):
+        dbsrv.add_transaction(1, 3, 2, 20, DEBT)
+
+
+class TestClearAll(DbBase):
+    def test_succeeds_normally(self):
+        dbsrv.clear_all(1)
+        newtrans = Trans.query.get(1)
+        assert newtrans.kind == CLEAR_ALL
+
+    @raises(err.GroupDoesNotExistError)
+    def test_fails_if_group_does_not_exist(self):
+        dbsrv.clear_all(2)
+
+
+class TestChangeUser(DbBase):
+    def test_succeeds_normally(self):
+        dbsrv.change_user(1, name="test", email="test@test.com")
+        assert self.james.name == "test"
+        assert self.james.email == "test@test.com"
+
+    @raises(err.UserDoesNotExistError)
+    def test_fails_if_user_does_not_exist(self):
+        dbsrv.change_user(4, name="test")
 
 
 class TestSearchUsers(DbBase):
-    def test_finds_users(self):
-        assert dbsrv.search_users("james") == set([self.james])
-        assert dbsrv.search_users("gmail") == set([self.james, self.will])
+    def test_succeeds_normally(self):
+        result = dbsrv.search_users("j")
+        assert self.james in result
+        assert self.john in result
 
-    def test_fails_to_find_users(self):
-        assert dbsrv.search_users("nope") == set([])
+    def test_finds_nothing(self):
+        result = dbsrv.search_users("z")
+        assert result == set([])
 
 
-class TestSearchGroups(DbBase):
-    def test_finds_groups(self):
-        assert dbsrv.search_groups("Dusk") == set([self.duskmantle])
+class TestUsersInGroup(DbBase):
+    def test_returns_true_correctly(self):
+        assert dbsrv.users_in_group([1, 2], 1) is True
+        assert dbsrv.users_in_group(1, 1) is True
 
-    def test_fails_to_find_groups(self):
-        assert dbsrv.search_groups("nope") == set([])
+    def test_returns_false_correctly(self):
+        assert dbsrv.users_in_group([1, 3], 1) is False
 
 
 class TestAddMember(DbBase):
-    def test_makes_new_member(self):
-        dbsrv.add_member(self.will, self.duskmantle)
-        assert Member.query.filter(Member.user_id == self.will.id).one()
+    def test_succeeds_normally(self):
+        dbsrv.add_member(3, 1)
+        assert self.john in self.duskmantle.members
+
+    @raises(err.MemberAlreadyError)
+    def test_fails_if_user_already_in_group(self):
+        dbsrv.add_member(1, 1)
+
+
+class TestSetAdmin(DbBase):
+    def test_succeeds_normally(self):
+        dbsrv.set_admin(2, 1, True)
+        assert self.will.member[0].admin is True
+
+
+class TestSearchGroups(DbBase):
+    def test_succeeds_normally(self):
+        res = dbsrv.search_groups("d")
+        assert self.duskmantle in res
+
+    def test_finds_nothing(self):
+        assert dbsrv.search_groups("z") == set([])
