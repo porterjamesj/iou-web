@@ -54,7 +54,7 @@ class TestAddTransaction(DbBase):
         assert newtrans.amount == 20
 
     @raises(err.UsersNotInGroupError)
-    def test_fails_when_users_not_in_group(self):
+    def test_fail_is_users_not_in_group(self):
         dbsrv.add_transaction(1, 3, 2, 20, DEBT)
 
 
