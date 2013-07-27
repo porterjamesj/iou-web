@@ -24,6 +24,8 @@ def add_transaction(group_id, from_id, to_id, amount, kind):
 
 
 def clear_all(group_id):
+    if not get_group(group_id):
+        raise err.GroupDoesNotExistError
     clear = Trans(group_id=group_id,
                   kind=CLEAR_ALL,
                   time=time())
@@ -38,10 +40,11 @@ def change_user(user_id, name=None, email=None):
     """Change the user's name and email to the given parameters,
     if they are passed."""
     user = User.query.get(user_id)
+    if not user:
+        raise err.UserDoesNotExistError
     if name:
         user.name = name
     if email:
-        # TODO validate this
         user.email = email
     db.session.commit()
 
@@ -53,10 +56,10 @@ def get_user(user_id):
 
 def search_users(querystring):
     """Return all the users whose name or email is like the query string."""
-    foundname = User.query.filter(User.name.like("%" +
-                                                 querystring + "%")).all()
-    foundemail = User.query.filter(User.email.like("%" +
-                                                   querystring + "%")).all()
+    foundname = User.query.filter(
+        User.name.like("%" + querystring + "%")).all()
+    foundemail = User.query.filter(
+        User.email.like("%" + querystring + "%")).all()
     return set(foundname+foundemail)
 
 
@@ -66,16 +69,17 @@ def search_users(querystring):
 def users_in_group(user_ids, group_id):
     """Return true if all users are members of the group, false
     otherwise. Accepts either a single integer user_id of a list of
-    same."""
+    same. Will return False rather than throw an error if the user
+    or the group does not exist, perhaps this should be changed"""
     if type(user_ids) is int:
         user_ids = [user_ids]
 
     members = Member.query.filter(Member.group_id == group_id,
                                   Member.user_id.in_(user_ids)).all()
     print members
-    if len(members) == len(user_ids):  # someone is not in the group
+    if len(members) == len(user_ids):
         return True
-    else:
+    else:  # someone is not in the group
         return False
 
 
