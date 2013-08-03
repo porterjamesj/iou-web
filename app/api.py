@@ -52,13 +52,12 @@ def post_trans(dbsrv=dbsrv):
 # USER
 
 
-@app.route('/users', methods=["GET"])
+@app.route('/users/', methods=["GET"])
 @login_required
 def search_users(dbsrv=dbsrv):
     """A GET request to /users will do a search."""
     try:
-        args = request.get_json()
-        query = args['query']
+        query = request.args.get('query')
     except:
         raise err.JSONParseError("JSON Parsing failed.")
     users = dbsrv.search_users(query)
@@ -117,8 +116,7 @@ def put_user(user_id, dbsrv=dbsrv):
 def search_groups(dbsrv=dbsrv):
     """A GET request to /groups does a search."""
     try:
-        args = request.get_json()
-        query = args['query']
+        query = request.args['query']
     except:
         raise err.JSONParseError("JSON Parsing failed.")
     groups = dbsrv.search_groups(query)

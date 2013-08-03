@@ -52,10 +52,7 @@ class TestSearchUsers(APIBase, ParsesJson):
     @classmethod
     def setup_class(self):
         self.sm = Mock()  # mock for the database services layer
-        data = json.dumps({"query": "j"})
-        self.fake_request = app.test_request_context(data=data,
-                                                     content_type=
-                                                     "application/json")
+        self.fake_request = app.test_request_context("?query=testquery")
 
     def setUp(self):
         self.sm.search_users.return_value = [User()]
@@ -102,16 +99,12 @@ class TestSearchGroups(APIBase, ParsesJson):
     @classmethod
     def setup_class(self):
         self.sm = Mock()
-        data = json.dumps({"query": "test"})
-        self.fake_request = app.test_request_context(data=data,
-                                                     content_type=
-                                                     "application/json")
 
     def setUp(self):
         self.sm.search_groups.return_value = [Group()]
 
     def test_succeed_normally(self):
-        with self.fake_request:
+        with app.test_request_context("?query=testquery"):
             self.assertStatus(api.search_groups(dbsrv=self.sm), 200)
 
 
