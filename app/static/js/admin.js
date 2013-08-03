@@ -4,12 +4,12 @@
     $.ajax({
       method: "POST",
       contentType: "application/json",
-      url: $SCRIPT_ROOT + "/add",
-      data: JSON.stringify({"group_id":group_id,
-                            "from":from, //an array
-                            "to_id":to_id,
+      url: $SCRIPT_ROOT + "/transactions",
+      data: JSON.stringify({"group_id": group_id,
+                            "from_ids": from, //an array
+                            "to_id": to_id[0], //just use the single value
                             "amount": amount,
-                            "kind":kind})
+                            "kind": kind})
     });
   };
 
@@ -61,42 +61,52 @@
     $.ajax({
       method: "POST",
       contentType: "application/json",
-      url: $SCRIPT_ROOT + "/clearall/" + group
+      data: JSON.stringify({group_id: group,
+                             kind: "clear"}),
+      url: $SCRIPT_ROOT + "/transactions"
     });
   };
 
   var addAdmins = function(button) {
     var $button = $(button);
-    var group = getGroup($button);
-    var user = getTag($button,"user");
-    $.ajax({
-      method:"POST",
-      contentType: "application/json",
-      url: $SCRIPT_ROOT + "/addadmin",
-      data: JSON.stringify({"user": user,
-                            "group": group})
+    var group_id = getGroup($button);
+    var user_ids = getTag($button,"user");
+    // make each user an admin
+    user_ids.map(function (user_id) {
+      $.ajax({
+        method:"PUT",
+        contentType: "application/json",
+        url: $SCRIPT_ROOT + "/users/" + user_id,
+        data: JSON.stringify({"group_id": group_id,
+                              "admin": true})
+      });
     });
   };
 
   var resign = function(button) {
     var $button = $(button);
-    var group = getGroup($button);
+    var group_id = getGroup($button);
     $.ajax({
-      method:"POST",
+      method:"PUT",
       contentType: "application/json",
-      url: $SCRIPT_ROOT + "/resign/" + group,
-      success: window.location.reload()
+      url: $SCRIPT_ROOT + "/self",
+      data: JSON.stringify({"action": "resign",
+                           "group_id": group_id}),
+      // success: window.location.reload()
     });
   };
 
   var appendUsers = function($button,data) {
-    var users = data['users'];
+    var users = data.users;
+    console.log(users);
     $button.siblings(".user").remove();
-    _.map(users, function(user) {
+    users.map(function(user) {
       if (user.groups.indexOf(getGroup($button)) == -1) {
-        $button.parent().append("<a style='display:block' role='addmember' uid="
-                                + user.id + ">"
-                                + user.email + " (" + user.name + ")"+
+        // Only display users not already in the group.
+        $button.parent().append(
+          "<a class=user style='display:block' role='addmember' uid=" +
+                                user.id + ">" +
+                                user.email + " (" + user.name + ")"+
                                 "</a>");
       }
     });
@@ -107,9 +117,10 @@
     var $button = $(button);
     var querystring = getField($button,"search");
     $.ajax({
-      method:"POST",
+      method:"GET",
       contentType: "application/json",
-      url: $SCRIPT_ROOT + "/search/users/" + querystring,
+      url: $SCRIPT_ROOT + "/users/",
+      data:"query=" + querystring,
       success: function (data) { appendUsers($button,data); }
     });
   };
