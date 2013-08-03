@@ -42,7 +42,6 @@ def post_trans(dbsrv=dbsrv):
     # if this is a debt or a payment, try to add the transactions
     if kindn in [DEBT, PAYMENT]:
         for from_id in from_ids:
-            print from_id
             dbsrv.add_transaction(group_id, from_id, to_id,
                                   amount/len(from_ids), kindn)
     elif kindn == CLEAR_ALL:
@@ -100,6 +99,7 @@ def put_user(user_id, dbsrv=dbsrv):
         group_id = args.get('group_id')
     except:
         raise err.JSONParseError("JSON Parsing Failed.")
+
     if name is not None or email is not None:
         dbsrv.change_user(user_id,
                           name=name,

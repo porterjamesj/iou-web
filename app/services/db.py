@@ -10,6 +10,7 @@ import app.errors as err
 def add_transaction(group_id, from_id, to_id, amount, kind):
     """Add the specified transaction to the database."""
     # check that that the users are members of the group
+
     if not users_in_group([from_id, to_id], group_id):
         raise err.UsersNotInGroupError("Users not in requested group .")
     # now add the transaction
@@ -76,7 +77,6 @@ def users_in_group(user_ids, group_id):
 
     members = Member.query.filter(Member.group_id == group_id,
                                   Member.user_id.in_(user_ids)).all()
-    print members
     if len(members) == len(user_ids):
         return True
     else:  # someone is not in the group
