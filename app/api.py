@@ -68,7 +68,7 @@ def search_users(dbsrv=dbsrv):
                     "email": user.email,
                     "groups": [g.id for g in user.groups]}
         userlist.append(userdict)
-    return jsonify({"result": userlist})
+    return jsonify({"users": userlist})
 
 
 @app.route('/users/<int:user_id>', methods=["GET"])
@@ -184,5 +184,5 @@ def put_self(dbsrv=dbsrv, current_user=current_user):
     except:
         raise err.JSONParseError("JSON Parsing Failed.")
     if action == "resign":
-        dbsrv.set_admin(current_user, group_id, False)
+        dbsrv.set_admin(current_user.id, group_id, False)
     return jsonify(success)
