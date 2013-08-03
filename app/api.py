@@ -176,7 +176,7 @@ def new_member(group_id, user_id, dbsrv=dbsrv):
 
 @app.route('/self', methods=["PUT"])
 @login_required
-def put_self(group_id, dbsrv=dbsrv):
+def put_self(dbsrv=dbsrv, current_user=current_user):
     try:
         args = request.get_json()
         group_id = args.get('group_id')

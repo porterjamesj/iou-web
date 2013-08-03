@@ -172,4 +172,5 @@ class TestPutSelf(APIBase, ParsesJson):
 
     def test_succeed_normally(self):
         with self.fake_request:
-            self.assertStatus(api.put_self(1, dbsrv=self.sm), 200)
+            self.assertStatus(api.put_self(dbsrv=self.sm,
+                                           current_user=Mock()), 200)
